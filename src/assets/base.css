@@ -1,74 +1,97 @@
-/* color palette from <https://github.com/vuejs/theme> */
-:root {
-  --vt-c-white: #ffffff;
-  --vt-c-white-soft: #f8f8f8;
-  --vt-c-white-mute: #f2f2f2;
-
-  --vt-c-black: #181818;
-  --vt-c-black-soft: #222222;
-  --vt-c-black-mute: #282828;
-
-  --vt-c-indigo: #2c3e50;
-
-  --vt-c-divider-light-1: rgba(60, 60, 60, 0.29);
-  --vt-c-divider-light-2: rgba(60, 60, 60, 0.12);
-  --vt-c-divider-dark-1: rgba(84, 84, 84, 0.65);
-  --vt-c-divider-dark-2: rgba(84, 84, 84, 0.48);
-
-  --vt-c-text-light-1: var(--vt-c-indigo);
-  --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
-  --vt-c-text-dark-1: var(--vt-c-white);
-  --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
-}
-
-/* semantic color variables for this project */
-:root {
-  --color-background: var(--vt-c-white);
-  --color-background-soft: var(--vt-c-white-soft);
-  --color-background-mute: var(--vt-c-white-mute);
-
-  --color-border: var(--vt-c-divider-light-2);
-  --color-border-hover: var(--vt-c-divider-light-1);
-
-  --color-heading: var(--vt-c-text-light-1);
-  --color-text: var(--vt-c-text-light-1);
-
-  --section-gap: 160px;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-background: var(--vt-c-black);
-    --color-background-soft: var(--vt-c-black-soft);
-    --color-background-mute: var(--vt-c-black-mute);
-
-    --color-border: var(--vt-c-divider-dark-2);
-    --color-border-hover: var(--vt-c-divider-dark-1);
-
-    --color-heading: var(--vt-c-text-dark-1);
-    --color-text: var(--vt-c-text-dark-2);
-  }
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  position: relative;
-  font-weight: normal;
-}
 
 body {
-  min-height: 100vh;
-  color: var(--color-text);
-  background: var(--color-background);
-  transition: color 0.5s, background-color 0.5s;
-  line-height: 1.6;
-  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
-    Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  font-size: 15px;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    min-height: 100%;
+}
+body .badge {
+    font-size: 1em;
+}
+body.preload * {
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -ms-transition: none !important;
+    -o-transition: none !important;
+}
+footer {
+    margin-top: 200px;
+    text-align: center;
+}
+
+header.site-header nav {
+    border: none!important;
+}
+.site-header .container {
+    border-bottom: 1px solid #282828;
+}
+@media (min-width: 1200px) {
+    .site-header .container {
+        max-width: 960px;
+    }
+}
+
+@media (max-width: 991px) {
+    #site-navbar {
+        margin-left: calc(100% - 160px);
+    }
+}
+
+.menu-link-analytics .nav-link {
+    --bs-text-opacity: 1;
+    color: rgba(var(--bs-warning-rgb),var(--bs-text-opacity))!important;
+}
+.menu-link-analytics .nav-link:hover,
+.menu-link-analytics .nav-link:focus {
+    color: #cc6d00!important;
+}
+
+.logo-wrap {
+    height: 71px;
+}
+
+.copy-btn-sm {
+    z-index: 10;
+    padding: 0 3px 2px 3px;
+}
+.copy-btn-sm-white:not(:hover){
+    color: #fff;
+    border-color: #fff;
+}
+.copy-btn-sm-black:not(:hover){
+    color: #000;
+    border-color: #000;
+}
+.copy-btn-sm:focus{
+    box-shadow: none;
+}
+
+.d3x-text-white {
+    color: #ddd;
+}
+
+.d3x-tooltip-success .tooltip-inner {
+    --bs-bg-opacity: 1;
+    background-color: rgba(var(--bs-success-rgb),var(--bs-bg-opacity))!important
+}
+
+.d3x-tooltip-success .tooltip-arrow::before {
+    --bs-bg-opacity: 1;
+    border-right-color: rgba(var(--bs-success-rgb),var(--bs-bg-opacity))!important
+}
+
+.hide {
+    display: none;
+}
+
+.blink {
+    animation: blink-animation 1s steps(5, start) infinite;
+    -webkit-animation: blink-animation 1s steps(5, start) infinite;
+}
+@keyframes blink-animation {
+    to {
+        visibility: hidden;
+    }
+}
+@-webkit-keyframes blink-animation {
+    to {
+        visibility: hidden;
+    }
 }
