@@ -28,7 +28,7 @@
                             >{{ shortRri(token.rri) }}</a></td>
                             <td>{{ token.description }}</td>
                             <td v-if="token.price !== null">
-                                <a :href="`/swap?token=${token.symbol}`">{{ displayCurrency(token.price) }}</a>
+                                <RouterLink :to="`/swap?token=${token.symbol}`">{{ displayCurrency(token.price) }}</RouterLink>
                             </td>
                             <td v-else>N/A</td>
                         </tr>

@@ -13,4 +13,5 @@ import ConfigLoader from "@/components/ConfigLoader.vue";
 
 <style>
 @import "@/assets/base.css";
+@import "vue-select/dist/vue-select.css";
 </style>

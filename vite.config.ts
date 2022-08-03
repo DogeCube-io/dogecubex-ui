@@ -6,11 +6,13 @@ import vue from "@vitejs/plugin-vue";
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [vue()],
+    build: {
+        sourcemap: true,
+    },
     server: {
         proxy: {
-            "/config/": "https://dogecubex.live",
-            // "/api/": "https://dogecubex.live",
-            "/api/": "http://localhost:8080",
+            "/api/": "https://dogecubex.live",
+            // "/api/": "http://localhost:8080",
         }
     },
     resolve: {
@@ -18,4 +20,5 @@ export default defineConfig({
             "@": fileURLToPath(new URL("./src", import.meta.url)),
         },
     },
+
 });

@@ -7,6 +7,9 @@ import HowToSwapView from "@/views/HowToSwapView.vue";
 import TokensView from "@/views/TokensView.vue";
 import StakersView from "@/views/StakersView.vue";
 import FAQView from "@/views/FAQView.vue";
+import SwapView from "@/views/SwapView.vue";
+import ChartView from "@/views/ChartView.vue";
+import AnalyticsView from "@/views/AnalyticsView.vue";
 
 function dogeRoute(route: RouteRecordRaw, pageName: string): RouteRecordWithTitle {
     const title = `DogeCubeX | ${pageName}`;
@@ -34,6 +37,13 @@ const router = createRouter({
                 component: HomeView,
             }, "Home"
         ),
+        dogeRoute(
+            {
+                path: "/swap",
+                name: "swap",
+                component: SwapView,
+            }, 'Swap'),
+
         dogeRoute(
             {
                 path: "/about",
@@ -64,6 +74,21 @@ const router = createRouter({
                 name: "faq",
                 component: FAQView,
             }, 'FAQ'),
+
+        dogeRoute(
+            {
+                path: "/chart",
+                name: "chart",
+                component: ChartView,
+            }, 'Chart'),
+
+        dogeRoute(
+            {
+                path: "/analytics",
+                name: "analytics",
+                component: AnalyticsView,
+            }, 'Analytics'),
+
     ],
 });
 

@@ -1,9 +1,10 @@
 <template>
     <header class="site-header sticky-top">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <div class="container">
-                <a class="navbar-brand logo-wrap me-md-auto" href="/">
-                    <img v-if="showImages" style="zoom: 0.5;margin-left: -82px;" src="/image/logo-default.png" alt="">
+        <nav class="navbar navbar-expand-sm navbar-dark bg-dark" :class="`page-${activePage && activePage.toLowerCase()}`">
+            <div class="container-xxl">
+                <span class="separator"></span>
+                <a class="navbar-brand logo-wrap me-md-auto doge-logo" href="/">
+                    <img v-if="showImages" src="/image/logo-default.png" alt="">
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#site-navbar"
                         aria-controls="site-navbar" aria-expanded="false" aria-label="Menu">
@@ -11,27 +12,23 @@
                 </button>
 
                 <div class="collapse navbar-collapse" id="site-navbar">
-                    <ul class="navbar-nav ms-md-auto mb-2 mb-lg-0">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         <li class="nav-item" v-bind:key="page" v-for="page in headerItems"
                             :class="'menu-link-' + page.toLowerCase()">
-                            <a class="nav-link" :class="page === activePage ? 'active' : ''"
-                               :aria-current="page === activePage ? 'page' : ''"
-                               :href="'/' + page.toLowerCase()">{{ page }}</a>
+                            <RouterLink :to="'/' + page.toLowerCase()" class="nav-link"
+                                        :class="page === activePage ? 'active' : ''"
+                                        :aria-current="page === activePage ? 'page' : ''">{{ page }}
+                            </RouterLink>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" :class="dropdownClass"
                                href="#" id="menu-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Info</a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="menu-dropdown">
-                                <li><a class="dropdown-item" :class="'About' === activePage ? 'active' : ''"
-                                       href="/about">About</a>
+                                <li v-for="(item, alias) in dropDownItems" v-bind:key="alias">
+                                    <RouterLink :to="item.url" class="dropdown-item"
+                                                :class="this.activePage === alias ? 'active' : '' ">{{ item.name }}
+                                    </RouterLink>
                                 </li>
-                                <li><a class="dropdown-item" :class="'Info' === activePage ? 'active' : ''"
-                                       href="/info">How To Swap</a></li>
-                                <li><a class="dropdown-item" :class="'Tokens' === activePage ? 'active' : ''"
-                                       href="/tokens">Tokens</a>
-                                </li>
-                                <li><a class="dropdown-item" :class="'Stakers' === activePage ? 'active' : ''"
-                                       href="/stakers">Staking</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -42,11 +39,23 @@
 </template>
 
 <script lang="ts">
-const dropDownItems: { [key: string]: string } = {
-    Info: "active",
-    About: "active",
-    Tokens: "active",
-    Stakers: "active",
+const dropDownItems: { [key: string]: { name: string; url: string; } } = {
+    About: {
+        name: "About",
+        url: "/about",
+    },
+    Info: {
+        name: "How To Swap",
+        url: "/info",
+    },
+    Tokens: {
+        name: "Tokens",
+        url: "/tokens",
+    },
+    Stakers: {
+        name: "Staking",
+        url: "/stakers",
+    },
 };
 
 export default {
@@ -64,11 +73,14 @@ export default {
     },
     computed: {
         headerItems(): string[] {
-            return ["Swap", "Analytics", "FAQ"];
+            return ["Swap", "Analytics", "Chart", "FAQ"];
         },
         dropdownClass(): string {
-            return dropDownItems[this.activePage] || "";
+            return dropDownItems[this.activePage] ? "active" : "";
         },
+        dropDownItems() {
+            return dropDownItems;
+        }
     }
 }
 </script>

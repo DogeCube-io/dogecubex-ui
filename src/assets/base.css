@@ -2,64 +2,71 @@
 body {
     min-height: 100%;
 }
+
 body .badge {
     font-size: 1em;
 }
+
 body.preload * {
     -webkit-transition: none !important;
     -moz-transition: none !important;
     -ms-transition: none !important;
     -o-transition: none !important;
 }
+
 footer {
-    margin-top: 200px;
+    margin-top: 50px;
     text-align: center;
 }
 
 header.site-header nav {
-    border: none!important;
-}
-.site-header .container {
-    border-bottom: 1px solid #282828;
-}
-@media (min-width: 1200px) {
-    .site-header .container {
-        max-width: 960px;
-    }
+    border: none !important;
 }
 
-@media (max-width: 991px) {
-    #site-navbar {
-        margin-left: calc(100% - 160px);
-    }
+.site-header .container-xxl {
+    position: relative;
+}
+.site-header .container-xxl .separator {
+    height: 1px;
+    background-color: #282828;
+    position: absolute;
+    width: calc(100% - 30px);
+    bottom: -2px;
+    left: 17px;
 }
 
-.menu-link-analytics .nav-link {
+
+.menu-link-chart .nav-link {
     --bs-text-opacity: 1;
-    color: rgba(var(--bs-warning-rgb),var(--bs-text-opacity))!important;
+    color: rgba(var(--bs-warning-rgb), var(--bs-text-opacity)) !important;
 }
-.menu-link-analytics .nav-link:hover,
-.menu-link-analytics .nav-link:focus {
-    color: #cc6d00!important;
+
+.menu-link-chart .nav-link:hover,
+.menu-link-chart .nav-link:focus {
+    color: #cc6d00 !important;
 }
 
 .logo-wrap {
     height: 71px;
+    z-index: 2;
 }
 
 .copy-btn-sm {
     z-index: 10;
     padding: 0 3px 2px 3px;
 }
-.copy-btn-sm-white:not(:hover){
+
+.copy-btn-sm-white:not(:hover) {
     color: #fff;
     border-color: #fff;
 }
-.copy-btn-sm-black:not(:hover){
+
+.copy-btn-sm-black:not(:hover) {
     color: #000;
     border-color: #000;
 }
-.copy-btn-sm:focus{
+
+.copy-btn-sm:focus {
     box-shadow: none;
 }
 
@@ -69,12 +76,12 @@ header.site-header nav {
 
 .d3x-tooltip-success .tooltip-inner {
     --bs-bg-opacity: 1;
-    background-color: rgba(var(--bs-success-rgb),var(--bs-bg-opacity))!important
+    background-color: rgba(var(--bs-success-rgb), var(--bs-bg-opacity)) !important
 }
 
 .d3x-tooltip-success .tooltip-arrow::before {
     --bs-bg-opacity: 1;
-    border-right-color: rgba(var(--bs-success-rgb),var(--bs-bg-opacity))!important
+    border-right-color: rgba(var(--bs-success-rgb), var(--bs-bg-opacity)) !important
 }
 
 .hide {
@@ -85,13 +92,72 @@ header.site-header nav {
     animation: blink-animation 1s steps(5, start) infinite;
     -webkit-animation: blink-animation 1s steps(5, start) infinite;
 }
+
 @keyframes blink-animation {
     to {
         visibility: hidden;
     }
 }
+
 @-webkit-keyframes blink-animation {
     to {
         visibility: hidden;
     }
+}
+
+.doge-logo img {
+    zoom: 0.5;
+}
+
+.page-chart .doge-logo img {
+    zoom: 0.4;
+}
+
+.my-5 {
+    margin-top: 1rem !important;
+    margin-bottom: 1rem !important;
+}
+
+@media (max-width: 992px) {
+    .logo-wrap {
+        height: 51px;
+    }
+
+    .doge-logo img {
+        zoom: 0.25;
+    }
+
+    .page-chart .doge-logo img {
+        zoom: 0.25;
+    }
+
+    .site-header .container-xxl .separator {
+        bottom: 2px;
+    }
+
+    .my-5 {
+        margin-top: 0.5rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+}
+
+
+
+/** Vue transitions */
+.slide-down-enter-active,
+.slide-down-leave-active {
+    transition: max-height 0.8s ease-in-out;
+}
+ {
+    animation-duration: 0.8s;
+    animation-name: slideUp;
+}
+.slide-down-enter-to, .slide-down-leave-from {
+    max-height: 100px;
+    overflow: hidden;
+}
+
+.slide-down-enter-from, .slide-down-leave-to {
+    overflow: hidden;
+    max-height: 0;
 }

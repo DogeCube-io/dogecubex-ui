@@ -15,7 +15,7 @@
                         <div class="col-12">
                             Simply send your tokens to the Pool Account. All your sent tokens will be exchanged to the
                             another token in the pool at the current Pool price.<br>
-                            Be sure to first run through the calculator on the <a href="/swap">Swap</a> page.
+                            Be sure to first run through the calculator on the <RouterLink to="/swap">Swap</RouterLink> page.
                         </div>
                     </div>
                     <div class="my-2 py-1">
@@ -23,7 +23,7 @@
                     </div>
                     <div class="row">
                         <div class="col-12">
-                            Go to the Calculator on the <a href="/swap">Swap</a> page and enter the amount you would
+                            Go to the Calculator on the <RouterLink to="/swap">Swap</RouterLink> page and enter the amount you would
                             like to receive in the second <code>To</code> field.<br>
                             Copy the amount from the bottom of the form and send it to the Pool Account.<br>
                             <b>The drawback here</b> is that any swaps happening before you send your transaction may
@@ -36,7 +36,7 @@
                     </div>
                     <div class="row">
                         <div class="col-12">
-                            Open the Settings on the <a href="/swap">Swap</a> page and increase <code>Slippage
+                            Open the Settings on the <RouterLink to="/swap">Swap</RouterLink> page and increase <code>Slippage
                             tolerance</code>, for example, to <code>5 %</code>.<br>
                             Enter the amount you would like to receive in the second <code>To</code> field. Note that
                             now the amount that you need to send is slightly higher and accounts for the slippage

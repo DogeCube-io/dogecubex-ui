@@ -1,3 +1,8 @@
+# Proprietary Trading View files
+public/charting_library
+lib/charting_library
+lib/datafeeds
+
 # Logs
 logs
 *.log

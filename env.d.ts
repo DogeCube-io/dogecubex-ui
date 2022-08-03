@@ -35,7 +35,7 @@ declare type TokenDto = {
 
 declare type StakerResponseDto = {
     stakers: StakerDto[];
-    stakingLimits: {[key:string]: string }[];
+    stakingLimits: { [key: string]: string }[];
     defaultLimit: string;
 }
 
@@ -43,4 +43,40 @@ declare type StakerDto = {
     address: string;
     stake: string;
     tradeLimit: string;
+}
+
+declare type TokenInfoDto = {
+    symbol: string;
+    name: string;
+    rri: string;
+    iconUrl: string;
+}
+
+declare type PoolInfoDto = {
+    token: TokenInfoDto;
+    account: string;
+    heroImageUrl: string;
+}
+
+declare type StatusDto = {
+    status: string;
+    pool: PoolDto;
+}
+
+declare type PoolDto = {
+    tokenA: string;
+    tokenB: string;
+    amountA: string;
+    amountB: string;
+}
+
+declare type QuoteDto = {
+    sentAmount: string;
+    receivedAmount: string;
+    minAmount: string;
+    price: string;
+    priceImpact: string;
+    resultingPrice: string;
+
+    error?: string;
 }

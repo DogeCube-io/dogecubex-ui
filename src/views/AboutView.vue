@@ -25,7 +25,7 @@
                             sent amount and available liquidity.<br>
                             When you send tokens, you can optionally add a message that will determine refund<code><sup>*</sup></code>
                             conditions in case of a rapid price change -
-                            see <a href="/info">How To Swap</a> and the <a href="/swap">Swap Calculator</a> itself.<br>
+                            see <RouterLink to="/info">How To Swap</RouterLink> and the <RouterLink to="/swap">Swap Calculator</RouterLink> itself.<br>
                         </div>
                         <div class="col-12">
                             <br>
@@ -80,9 +80,9 @@
                                 <div class="accordion-body">
                                     To prevent spamming with tiny transactions, minimum order is: <code>{{ config.minOrderSize }} XRD</code>.<br>
                                     The maximum order is limited to: <code>{{ config.maxOrderSize - 10 }} XRD</code>. DogeCube Node
-                                    stakers enjoy increased <a href="/stakers">order limits</a>.<br>
+                                    stakers enjoy increased <RouterLink to="/stakers">order limits</RouterLink>.<br>
                                     Incoming orders outside these boundaries will be refunded and additional fee applied
-                                    (see Fees).<br>
+                                    (see Fees), however if you want to swap more you can just spit into several transactions.<br>
                                 </div>
                             </div>
                         </div>
