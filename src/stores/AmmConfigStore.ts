@@ -8,8 +8,8 @@ export const useAmmConfigStore = defineStore({
     }),
     actions: {
         async loadConfig() {
-            const url = `/api/config.json?q=${Date.now()}`;
-            this.config = await (await fetch(url)).json();
+            const url = `/api/config.json`;
+            this.config = await (await fetch(url, {cache: "no-store"})).json();
         },
     },
 });

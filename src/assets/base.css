@@ -26,6 +26,7 @@ header.site-header nav {
 .site-header .container-xxl {
     position: relative;
 }
+
 .site-header .container-xxl .separator {
     height: 1px;
     background-color: #282828;
@@ -70,8 +71,23 @@ header.site-header nav {
     box-shadow: none;
 }
 
+.link-dark:hover {
+    color: #fff;
+}
+
 .d3x-text-white {
     color: #ddd;
+}
+
+.d3x-text-gray {
+    color: rgba(255, 255, 255, .55);
+}
+
+.d3x-no-underline {
+    text-decoration: none;
+}
+.d3x-fs-7 {
+    font-size: 0.75rem!important;
 }
 
 .d3x-tooltip-success .tooltip-inner {
@@ -142,13 +158,12 @@ header.site-header nav {
 }
 
 
-
 /** Vue transitions */
 .slide-down-enter-active,
 .slide-down-leave-active {
     transition: max-height 0.8s ease-in-out;
 }
- {
+{
     animation-duration: 0.8s;
     animation-name: slideUp;
 }

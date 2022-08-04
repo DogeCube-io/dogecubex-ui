@@ -10,6 +10,9 @@ import FAQView from "@/views/FAQView.vue";
 import SwapView from "@/views/SwapView.vue";
 import ChartView from "@/views/ChartView.vue";
 import AnalyticsView from "@/views/AnalyticsView.vue";
+import NotFoundView from "@/views/NotFoundView.vue";
+import { useGlobalErrorStore } from "@/stores/GlobalErrorStore";
+import TokenDetailsView from "@/views/TokenDetailsView.vue";
 
 function dogeRoute(route: RouteRecordRaw, pageName: string): RouteRecordWithTitle {
     const title = `DogeCubeX | ${pageName}`;
@@ -28,6 +31,15 @@ function dogeRoute(route: RouteRecordRaw, pageName: string): RouteRecordWithTitl
 }
 
 const router = createRouter({
+    scrollBehavior(to, from, savedPosition) {
+        if (savedPosition) {
+            return savedPosition;
+        } else {
+            return { top: 0 };
+        }
+        // always scroll to top
+        // return { top: 0 }
+    },
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         dogeRoute(
@@ -74,20 +86,33 @@ const router = createRouter({
                 name: "faq",
                 component: FAQView,
             }, 'FAQ'),
-
         dogeRoute(
             {
                 path: "/chart",
                 name: "chart",
                 component: ChartView,
             }, 'Chart'),
-
         dogeRoute(
             {
                 path: "/analytics",
                 name: "analytics",
                 component: AnalyticsView,
             }, 'Analytics'),
+        dogeRoute(
+            {
+                path: "/token",
+                name: "token-info",
+                component: TokenDetailsView,
+            }, 'Token'),
+
+
+        // last
+        dogeRoute(
+            {
+                path: "/:pathMatch(.*)*",
+                name: "not-found",
+                component: NotFoundView,
+            }, 'Not Found'),
 
     ],
 });
@@ -107,6 +132,12 @@ router.beforeEach((to, from, next) => {
     }
 
     next();
+});
+
+
+router.onError((error) => {
+    console.log(error);
+    useGlobalErrorStore().setError(error && error.message);
 });
 
 export default router;

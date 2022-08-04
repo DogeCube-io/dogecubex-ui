@@ -19,7 +19,18 @@ export default {
             type: Boolean,
         }
     },
-    tvWidget: null,
+    data() {
+        return {
+            tvWidget: null,
+            tvSaveLoadAdapter: null,
+            get interval() {
+                return localStorage.getItem("tradingview.chart.lastUsedTimeBasedResolution") || "1D";
+            },
+            set interval(value) {
+                // no op
+            }
+        };
+    },
     mounted() {
         let userId = window.localStorage["d3x.tv_user_id"] || "";
         if (!userId) {
@@ -34,7 +45,7 @@ export default {
             }
             window.localStorage["d3x.tv_user_id"] = userId;
         }
-        const interval = localStorage["tradingview.chart.lastUsedTimeBasedResolution"] || "1D";
+
         const container = this.$refs.chartContainer;
         const tvSaveLoadAdapter = new TVSaveLoadAdapter(this.symbol);
         const widgetOptions = {
@@ -42,7 +53,7 @@ export default {
             // BEWARE: no trailing slash is expected in feed URL
             datafeed: new UDFCompatibleDatafeed("/api/charts", 10000), // 30000
             // datafeed: new UDFCompatibleDatafeed("https://demo_feed.tradingview.com"),
-            interval: interval,
+            interval: this.interval,
             container: container,
             library_path: "/charting_library/",
             locale: 'en',
@@ -59,7 +70,7 @@ export default {
                 {text: "1y", resolution: "1D", description: "1 Year"},
                 {text: "1m", resolution: "30", description: "1 Month"},
                 {text: "1w", resolution: "5", description: "1 Week"},
-                { text: "1000y", resolution: "1D", description: "All", title: "All" },
+                {text: "1000y", resolution: "1D", description: "All", title: "All"},
             ],
             client_id: "dogecubex.live",
             user_id: userId,
@@ -75,9 +86,9 @@ export default {
         const tvWidget = new widget(widgetOptions);
 
         this.tvWidget = tvWidget;
-        window.tvWidget = tvWidget;
+        this.tvSaveLoadAdapter = tvSaveLoadAdapter;
 
-        function initChart(){
+        function initChart() {
             tvWidget.activeChart().createStudy(
                 'Volume',
                 true,
@@ -115,7 +126,7 @@ export default {
 
         tvWidget.onChartReady(() => {
             initChart();
-            tvWidget.activeChart().onSymbolChanged().subscribe(null, () =>{
+            tvWidget.activeChart().onSymbolChanged().subscribe(null, () => {
                 const tvSymbol = tvWidget.activeChart().symbol();
                 const parts = tvSymbol.split(":");
                 const symbol = parts[parts.length - 1];
@@ -140,12 +151,20 @@ export default {
         });
 
     },
-    computed: {},
     unmounted() {
         if (this.tvWidget !== null) {
             this.tvWidget.remove();
             this.tvWidget = null;
         }
+    },
+    computed: {
+    },
+    watch: {
+        symbol(newVal) {
+            console.log(arguments);
+            this.tvSaveLoadAdapter.currentSymbol = newVal;
+            this.tvWidget.setSymbol(newVal, this.interval);
+        },
     }
 }
 </script>

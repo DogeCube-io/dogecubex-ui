@@ -101,7 +101,7 @@ export default {
     props: {},
     async mounted() {
         const url = `/api/stakers.json`;
-        this.responseDto = await (await fetch(url)).json();
+        this.responseDto = await (await fetch(url, {cache: "no-store"})).json();
     },
     methods: {},
     computed: {},

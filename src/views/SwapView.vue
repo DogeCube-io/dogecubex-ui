@@ -2,63 +2,44 @@
     <TheHeader active-page="Swap" :show-images="true" />
     <main>
         <div class="px-4 my-5 text-center">
-            <div v-if="pool" id="pool-account" class="hide">{{ pool.account }}</div>
             <img class="d-block mx-auto mb-4 hero-image" style="height: 128px;" :src="heroImageFullUrl" alt="">
             <div class="col-lg-6 mx-auto container d3x-text-white">
                 <div class="row">
                     <div id="pool-select-parent" class="col-12">
-                        <div class="dropdown bootstrap-select">
-                            <v-select :options="pools"  v-model="selectedPool" :filter-by="poolFilterFunc"
-                                      :get-option-key="(p) => p.token.symbol"  :get-option-label="(p) => p.token.symbol"
-                                      placeholder="Select your pool"  class="pool-select" :clearable="false" @option:selected="poolChanged">
-                                <template v-slot:option="pool">
-                                    <span class="badge badge-success">
-                                        <img v-if="pool.heroImageUrl" style="width:32px;height:32px;" :src="pool.token.iconUrl" :alt="pool.token.name">
-                                        <span class="ms-2">{{pool.token.symbol + '/XRD'}}</span><small class="text-white ms-2">{{pool.token.name}}</small>
-                                    </span>
-                                </template>
-                                <template v-slot:selected-option="pool">
-                                    <span class="badge badge-success">
-                                        <img v-if="pool.heroImageUrl" style="width:32px;height:32px;" :src="pool.token.iconUrl" :alt="pool.token.name">
-                                        <span class="ms-2">{{pool.token.symbol + '/XRD'}}</span><small class="text-white ms-2">{{pool.token.name}}</small>
-                                    </span>
-                                </template>
-                            </v-select>
-                        </div>
+                        <pool-selector v-model="selectedPool" :initial-selection="selectedPoolSymbol" @onPoolSelected="poolChanged" />
                     </div>
                 </div>
-                <div class="row py-2">
-                    <div v-if="pool" class="col-12">
-                        Pool account:
-                        <span class="badge bg-info">{{util.shortAddress(pool.account)}}</span>
-                        &nbsp;<button-copy clazz="white" :value="pool.account" />
+                <div class="row justify-content-center py-2 g-5">
+                    <div v-if="selectedPool" class="col-12" style="max-width: 450px;">
+                        <span class="float-start">Pool account: </span>
+                        <span class="d-inline-block float-end">
+                            <span class="badge bg-info ms-1">{{util.shortAddress(selectedPool.account)}}</span>
+                            &nbsp;<button-copy clazz="white float-end" :value="selectedPool.account" />
+                        </span>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-12" id="status-row">
-                        Trading Engine:
-                        <span v-show="statusValue === 'ACTIVE'" class="text-success"><span class="blink">●</span> Active</span>
-                        <span v-show="statusValue === 'PAUSED'" class="text-warning"><span>●</span> Paused</span>
-                        <span v-show="statusValue === 'STOPPED'" class="text-danger"><span>⬤</span> Stopped</span>
+                <div class="row justify-content-center pb-2 g-5">
+                    <div class="col-12" style="max-width: 450px;">
+                        <span class="float-start">Trading Engine: </span>
+                        <status-widget :symbol="selectedPoolSymbol" :refresh-interval="3000" />
+                        <RouterLink class="btn btn-primary btn-sm ms-2 float-end" :to="{ path: '/chart', query: {symbol: selectedPoolSymbol} }">
+                            <icon-graph-up/>
+                        </RouterLink>
+                        <RouterLink class="btn btn-primary btn-sm float-end" :to="{ path: '/token', query: {symbol: selectedPoolSymbol} }">
+                            <icon-details/> Info
+                        </RouterLink>
                     </div>
                 </div>
-                <div class="row py-2">
-                    <div class="col-12">
-                        Tokens in the Pool:
-                    </div>
-                    <div v-if="selectedPool && status.pool"  class="col-12">
-                        <span>{{ status.pool.amountA }}</span> <span>{{ selectedPool.token.symbol }}</span> /
-                        <span>{{ status.pool.amountB }}</span> XRD
-                    </div>
-                    <div v-else class="col-12">
-                        <span>--</span> <span>{{ selectedPoolSymbol }}</span> /
-                        <span>--</span> XRD
+                <div class="row justify-content-center pb-2">
+                    <div class="col-12 " >
+
                     </div>
                 </div>
             </div>
             <div class="col-lg-6 mx-auto container ">
                 <div class="row justify-content-center g-5">
                     <div class="col-12" style="max-width: 450px;">
+                        <!-- TODO: first time alert -->
                         <div id="how-to-alert" class="alert alert-warning alert-dismissible fade hide" role="alert">
                             First time here? Please see <a class="alert-link" target="_blank" href="/info">How To
                             Swap</a><br>
@@ -69,7 +50,7 @@
                         <div class="swap-panel">
                             <div>
                                 <h5 class="start-0">
-                                    Swap
+                                    <span>Swap</span>
                                     <button role="button" @click="showSettings = !showSettings" class="btn btn-primary btn-sm float-end swap-settings">
                                         <icon-sliders/>
                                     </button>
@@ -271,59 +252,9 @@ input[type="range"]::-ms-track {
     background: transparent;
 }
 
-body .container .dropdown.bootstrap-select:not([class*=col-]):not([class*=form-control]):not(.input-group-btn) {
-    width: 310px;
-}
-
 #pool-select-parent {
     min-height: 57px;
 }
-
-.pool-select {
-    position: relative;
-    width: 100%;
-    text-align: right;
-    white-space: nowrap;
-    cursor: pointer;
-    color: #fff;
-    background-color: #555;
-
-    font-weight: 400;
-    line-height: 1.5;
-    /*text-decoration: none;*/
-    /*vertical-align: middle;*/
-
-    /*border: 1px solid #555;*/
-    /*padding: 0.375rem 1rem;*/
-    font-size: 1rem;
-    border-radius: 0.25rem;
-    transition: color .15s
-}
-.pool-select > ul {
-    font-size: 1rem;
-    color: #adafae;
-    text-align: left;
-    background-color: #282828;
-    background-clip: padding-box;
-}
-
-.pool-select.vs--searchable .vs__dropdown-toggle {
-    cursor: pointer;
-}
-.pool-select.vs--searchable .vs__dropdown-toggle .vs__search {
-    line-height: 2.5;
-}
-.pool-select.vs--searchable:not(.vs--open) .vs__dropdown-toggle .vs__search {
-    cursor: pointer;
-}
-.pool-select.vs--searchable .vs__dropdown-toggle .vs__search {
-    background-color: #555;
-    opacity: 0.65;
-}
-.pool-select.vs--searchable .vs__selected {
-    padding: 0;
-}
-
 
 #swap-message-prompt div:first-child {
     padding-right: 27px;
@@ -332,25 +263,29 @@ body .container .dropdown.bootstrap-select:not([class*=col-]):not([class*=form-c
 </style>
 <script lang="ts">
 import TheHeader from "@/components/TheHeader.vue";
-import type { PoolInfoDto, QuoteDto, StatusDto } from "../../env";
+import type { PoolInfoDto, QuoteDto } from "../../env";
 import Utils from "../util/Utils";
-import ButtonCopy from "@/components/ButtonCopy.vue";
+import ButtonCopy from "@/components/sub/ButtonCopy.vue";
 import IconSliders from "@/components/icons/IconSliders.vue";
 import IconArrowDown from "@/components/icons/IconArrowDown.vue";
 import IconChangeDirection from "@/components/icons/IconChangeDirection.vue";
 import IconInfo from "@/components/icons/IconInfo.vue";
 import { useAmmConfigStore } from "@/stores/AmmConfigStore";
 import type { AmmConfigDto } from "../../env";
+import PoolSelector from "@/components/PoolSelector.vue";
+import StatusWidget from "@/components/StatusWidget.vue";
+import IconDetails from "@/components/icons/IconDetails.vue";
+import IconGraphUp from "@/components/icons/IconGraphUp.vue";
 
 export default {
-    components: {IconInfo, IconChangeDirection, IconArrowDown, IconSliders, ButtonCopy, TheHeader},
+    components: {
+        IconGraphUp,
+        IconDetails,
+        StatusWidget,
+        PoolSelector, IconInfo, IconChangeDirection, IconArrowDown, IconSliders, ButtonCopy, TheHeader},
     data() {
         return {
-            pools: [] as PoolInfoDto[],
-            poolsMap: {} as { [key: string]: PoolInfoDto },
-            status: {} as StatusDto,
             selectedPool: <PoolInfoDto><any>null,
-            statusValue: "",
 
             amountFrom: null,
             amountTo: null,
@@ -361,7 +296,6 @@ export default {
             xrd: null,
 
             REQ_ID: 0,
-            STATUS_REQ_ID: 0,
             priceInXRD: true,
             isInputBySource: true, // whether to use input-from or input-to as basis for getting a quote
             expandDetailsOnce: false,
@@ -406,28 +340,24 @@ export default {
         if (this.mode === 'BUY') {
             if (this.amount) {
                 this.amountTo = this.amount;
-                this.onChange(false,"amount-to");
+                // this.onChange(false,"amount-to");
             } else {
                 this.amountFrom = this.xrd;
-                this.onChange(false,"amount-from");
+                // this.onChange(false,"amount-from");
             }
         } else {
             if (this.amount) {
                 this.amountFrom = this.amount;
-                this.onChange(false, "amount-from");
+                // this.onChange(false, "amount-from");
             } else {
                 this.amountTo = this.xrd;
-                this.onChange(false, "amount-to");
+                // this.onChange(false, "amount-to");
             }
         }
 
-        this.loadPoolInfo();
-        this.loadPoolStatus();
-
         this.focusListener = () => {
-            if (Date.now() - this.lastOnChange < 1000) { // do not auto update if user-updated within 1 second
+            if (Date.now() - this.lastOnChange > 1000) { // do not auto update if user-updated within 1 second
                 this.onChange(false);
-                this.loadPoolStatus();
             }
         }
 
@@ -449,39 +379,6 @@ export default {
         },
         displayCurrency(amount: string) {
             return Utils.displayCurrency(amount);
-        },
-        async loadPoolInfo() {
-            const pools = await (await fetch(`/api/pools-info.json`)).json() as PoolInfoDto[];
-            const poolsMap = {} as { [key: string]: PoolInfoDto };
-            for (let i = 0; i < pools.length; i++) {
-                const pool = pools[i];
-                const symbol = pool.token.symbol;
-                poolsMap[symbol] = pool;
-            }
-            this.poolsMap = poolsMap;
-            this.pools = pools;
-            this.selectedPool = poolsMap[this.selectedPoolSymbol];
-            this.onChange(false);
-        },
-        async loadPoolStatus() {
-            if (this.selectedPoolSymbol) {
-                let rand = Math.random();
-                this.STATUS_REQ_ID = rand;
-
-                try {
-                    const status = await (await fetch(`/api/engine/status.json?symbol=${this.selectedPoolSymbol}&q=${Date.now()}`)).json() as StatusDto;
-                    if (this.STATUS_REQ_ID === rand) {
-                        this.status = status;
-                        this.statusValue = status && status.status ? status.status : "STOPPED";
-                    }
-                } catch (error) {
-                    if (this.STATUS_REQ_ID === rand) {
-                        this.status = {};
-                        this.statusValue = "STOPPED";
-                    }
-                }
-
-            }
         },
         changeDirection() {
             if (this.to) {
@@ -570,11 +467,12 @@ export default {
 
 
             try {
-                const response = await fetch(`/api/swap/quote.json?q=${Date.now()}`, {
+                const response = await fetch(`/api/swap/quote.json`, {
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json'
                     },
+                    cache: "no-store",
                     body: JSON.stringify({
                         from: from,
                         to: to,
@@ -708,17 +606,7 @@ export default {
             }
             this.expandDetails = !this.expandDetails;
         },
-        poolFilterFunc(option: PoolInfoDto, label: string, search: string) {
-            if (!search) {
-                return true;
-            }
-            const s = search.toLowerCase();
-            return (option.token.symbol).toLowerCase().indexOf(s) > -1 ||
-                (option.token.name).toLowerCase().indexOf(s) > -1;
-        },
         poolChanged() {
-            this.statusValue = "";
-            this.status = {};
             if (this.to) {
                 this.to = this.selectedPool.token.symbol;
             } else if (this.from) {
@@ -726,7 +614,6 @@ export default {
             }
 
             this.onChange(true);
-            this.loadPoolStatus();
         },
         getQueryParams() {
             const qp = {};
@@ -747,11 +634,8 @@ export default {
         },
     },
     computed: {
-        pool(): PoolInfoDto {
-            return this.selectedPool;
-        },
         selectedPoolSymbol(): string {
-            if (!this.pool) {
+            if (!this.selectedPool) {
                 if (this.from) {
                     return this.from;
                 }
@@ -760,13 +644,13 @@ export default {
                 }
                 return "DGC";
             }
-            return this.pool.token.symbol;
+            return this.selectedPool.token.symbol;
         },
         heroImageFullUrl(): string {
-            if (!this.pool) {
+            if (!this.selectedPool) {
                 return "";
             }
-            const heroImg = this.pool.heroImageUrl;
+            const heroImg = this.selectedPool.heroImageUrl;
             return heroImg.startsWith("http") ? heroImg : "https://dogecubex.b-cdn.net" + heroImg;
         },
         util() {

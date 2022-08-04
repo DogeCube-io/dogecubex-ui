@@ -16,7 +16,7 @@
                             <th scope="col">Name</th>
                             <th scope="col">RRI</th>
                             <th scope="col">Description</th>
-                            <th scope="col">Price, XRD</th>
+                            <th scope="col">Info Page</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -28,9 +28,9 @@
                             >{{ shortRri(token.rri) }}</a></td>
                             <td>{{ token.description }}</td>
                             <td v-if="token.price !== null">
-                                <RouterLink :to="`/swap?token=${token.symbol}`">{{ displayCurrency(token.price) }}</RouterLink>
+                                <RouterLink class="link-dark fs-5" :to="{ path: '/token', query: {symbol: token.symbol} }"> <icon-details/></RouterLink>
                             </td>
-                            <td v-else>N/A</td>
+                            <td v-else></td>
                         </tr>
                         </tbody>
                     </table>
@@ -46,9 +46,10 @@
 import TheHeader from "@/components/TheHeader.vue";
 import type { TokenDto } from "../../env";
 import Utils from "../util/Utils";
+import IconDetails from "@/components/icons/IconDetails.vue";
 
 export default {
-    components: {TheHeader},
+    components: {IconDetails, TheHeader},
     data() {
         return {
             tokens: [] as TokenDto[]
@@ -57,7 +58,7 @@ export default {
     props: {},
     async mounted() {
         const url = `/api/tokens.json`;
-        this.tokens = await (await fetch(url)).json();
+        this.tokens = await (await fetch(url, {cache: "no-store"})).json();
     },
     methods: {
         shortRri(rri: string) {

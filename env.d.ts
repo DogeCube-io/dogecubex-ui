@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 
-import { RouteRecordRaw } from "vue-router";
+import type { RouteRecordRaw } from "vue-router";
 
 declare type MetaTag = {
     property: string,
@@ -63,6 +63,10 @@ declare type StatusDto = {
     pool: PoolDto;
 }
 
+declare type StatusStringDto = {
+    status: string;
+}
+
 declare type PoolDto = {
     tokenA: string;
     tokenB: string;
@@ -80,3 +84,49 @@ declare type QuoteDto = {
 
     error?: string;
 }
+
+declare type SummaryStatsDto = {
+    count: number;
+    volume: number;
+}
+
+declare type AnalyticsSummaryDto = {
+    day: SummaryStatsDto;
+    week: SummaryStatsDto;
+}
+
+declare type TokenAnalyticsDto = {
+    token: TokenInfoDto;
+    price: number;
+    priceChange24h: number;
+    priceChange7d: number;
+    volume24h: number;
+    volume7d: number;
+    liquidityA: number;
+    liquidityB: number;
+    valuation: number;
+}
+
+declare type TokenSwapDto = {
+    user: string;
+
+    tokenFrom: string;
+    tokenTo: string;
+    txIn: string;
+    txOut: string;
+    amountFrom: number;
+    amountTo: number;
+
+    dateAdded: number;
+    timeAgo: string;
+}
+
+declare type TokenDetailsDto = {
+    symbol: string;
+    description: string;
+    tokenInfoUrl: string;
+    totalSupply: number;
+
+    analytics: TokenAnalyticsDto;
+}
+
