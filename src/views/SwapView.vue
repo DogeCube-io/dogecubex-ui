@@ -6,10 +6,11 @@
             <div class="col-lg-6 mx-auto container d3x-text-white">
                 <div class="row">
                     <div id="pool-select-parent" class="col-12">
-                        <pool-selector v-model="selectedPool" :initial-selection="selectedPoolSymbol" @onPoolSelected="poolChanged" />
+                        <pool-selector v-model="selectedPool"
+                                       :initial-selection="selectedPoolSymbol" @onPoolSelected="poolChanged" />
                     </div>
                 </div>
-                <div class="row justify-content-center py-2 g-5">
+                <div class="row justify-content-center py-2 g-5" v-show="selectedPool && selectedPool.account" >
                     <div v-if="selectedPool" class="col-12" style="max-width: 450px;">
                         <span class="float-start">Pool account: </span>
                         <span class="d-inline-block float-end">
