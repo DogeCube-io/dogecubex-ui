@@ -6,6 +6,7 @@
 import { widget } from '../../public/charting_library';
 import { UDFCompatibleDatafeed } from "../../lib/datafeeds/udf/src/udf-compatible-datafeed";
 import TVSaveLoadAdapter from "@/util/TVSaveLoadAdapter";
+import API from "@/util/API";
 
 export default {
     name: 'TVChartContainer',
@@ -51,7 +52,7 @@ export default {
         const widgetOptions = {
             symbol: this.symbol,
             // BEWARE: no trailing slash is expected in feed URL
-            datafeed: new UDFCompatibleDatafeed("/api/charts", 10000), // 30000
+            datafeed: new UDFCompatibleDatafeed(API.baseUrl + "/api/charts", 10000), // 30000
             // datafeed: new UDFCompatibleDatafeed("https://demo_feed.tradingview.com"),
             interval: this.interval,
             container: container,
