@@ -34,7 +34,7 @@ const router = createRouter({
     scrollBehavior(to, from, savedPosition) {
         if (savedPosition) {
             return savedPosition;
-        } else {
+        } else if (from.path !== to.path) {
             return { top: 0 };
         }
         // always scroll to top
