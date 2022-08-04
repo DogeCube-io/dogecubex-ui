@@ -89,6 +89,7 @@
 <script lang="ts">
 import TheHeader from "@/components/TheHeader.vue";
 import type { StakerResponseDto } from "../../env";
+import API from "@/util/API";
 
 export default {
     components: {TheHeader},
@@ -100,8 +101,7 @@ export default {
     },
     props: {},
     async mounted() {
-        const url = `/api/stakers.json`;
-        this.responseDto = await (await fetch(url, {cache: "no-store"})).json();
+        this.responseDto = await API.get("/api/stakers.json") as StakerResponseDto;
     },
     methods: {},
     computed: {},

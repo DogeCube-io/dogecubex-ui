@@ -62,6 +62,7 @@ import Utils from "@/util/Utils";
 import PriceChange from "@/components/sub/PriceChange.vue";
 import Tooltip from "bootstrap/js/dist/tooltip";
 import IconGraphUp from "@/components/icons/IconGraphUp.vue";
+import API from "@/util/API";
 
 export default {
     components: {IconGraphUp, PriceChange, IconQuestion, IconArrowDown},
@@ -90,7 +91,7 @@ export default {
     },
     methods: {
         async loadData() {
-            this.data = await (await fetch(`/api/analytics/tokens.json`, {cache: "no-store"})).json() as TokenAnalyticsDto[] || [];
+            this.data = await API.get("/api/analytics/tokens.json") as TokenAnalyticsDto[] || [];
         },
         displayCurrency(amount: string | number) {
             return Utils.displayCurrency(amount);

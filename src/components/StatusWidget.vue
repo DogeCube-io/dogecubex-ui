@@ -8,6 +8,7 @@
 
 <script lang="ts">
 import type { StatusStringDto } from "../../env";
+import API from "@/util/API";
 
 export default {
     components: {},
@@ -50,7 +51,7 @@ export default {
                 const url = this.symbol
                     ? `/api/engine-status.json?symbol=${this.symbol}`
                     : `/api/engine-status.json`
-                const status = await (await fetch(url, {cache: "no-store"})).json() as StatusStringDto;
+                const status = await API.get(url) as StatusStringDto;
                 if (this.requestId === rand) {
                     this.statusValue = status && status.status ? status.status : "STOPPED";
                 }

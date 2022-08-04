@@ -116,6 +116,7 @@ import InfoColumn from "@/components/sub/InfoColumn.vue";
 import AnalyticsSwaps from "@/components/AnalyticsSwaps.vue";
 import StatusWidget from "@/components/StatusWidget.vue";
 import TVChartContainer from "@/components/TVChartContainer.vue";
+import API from "@/util/API";
 
 export default {
     components: {
@@ -157,8 +158,7 @@ export default {
             return qp;
         },
         async loadData() {
-            const url = `/api/token-details.json?symbol=${this.symbol}`;
-            this.data = await (await fetch(url, {cache: "no-store"})).json();
+            this.data = await API.get(`/api/token-details.json?symbol=${this.symbol}`);
         },
         shortRri(rri: string) {
             return Utils.shortRri(rri);

@@ -277,6 +277,7 @@ import PoolSelector from "@/components/PoolSelector.vue";
 import StatusWidget from "@/components/StatusWidget.vue";
 import IconDetails from "@/components/icons/IconDetails.vue";
 import IconGraphUp from "@/components/icons/IconGraphUp.vue";
+import API from "@/util/API";
 
 export default {
     components: {
@@ -468,20 +469,14 @@ export default {
 
 
             try {
-                const response = await fetch(`/api/swap/quote.json`, {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    cache: "no-store",
-                    body: JSON.stringify({
+                const response = await API.postRaw("/api/swap/quote.json", {
                         from: from,
                         to: to,
                         amountFrom: amountFrom,
                         amountTo: amountTo,
                         maxSlippage: this.maxSlippage
-                    })
-                });
+                    }
+                );
                 if (this.REQ_ID !== rand) {
                     return;
                 }

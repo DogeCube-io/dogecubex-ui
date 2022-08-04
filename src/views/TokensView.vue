@@ -47,6 +47,7 @@ import TheHeader from "@/components/TheHeader.vue";
 import type { TokenDto } from "../../env";
 import Utils from "../util/Utils";
 import IconDetails from "@/components/icons/IconDetails.vue";
+import API from "@/util/API";
 
 export default {
     components: {IconDetails, TheHeader},
@@ -57,8 +58,7 @@ export default {
     },
     props: {},
     async mounted() {
-        const url = `/api/tokens.json`;
-        this.tokens = await (await fetch(url, {cache: "no-store"})).json();
+        this.tokens = await API.get("/api/tokens.json") as TokenDto[];
     },
     methods: {
         shortRri(rri: string) {

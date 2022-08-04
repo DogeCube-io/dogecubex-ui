@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import type { AmmConfigDto } from "../../env";
+import API from "@/util/API";
 
 export const useAmmConfigStore = defineStore({
     id: "AmmConfig",
@@ -8,8 +9,7 @@ export const useAmmConfigStore = defineStore({
     }),
     actions: {
         async loadConfig() {
-            const url = `/api/config.json`;
-            this.config = await (await fetch(url, {cache: "no-store"})).json();
+            this.config = await API.get("/api/config.json") as AmmConfigDto;
         },
     },
 });

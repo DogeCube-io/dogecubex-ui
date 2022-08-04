@@ -17,6 +17,7 @@
 
 <script lang="ts">
 import type { AnalyticsSummaryDto } from "../../env";
+import API from "@/util/API";
 
 export default {
     components: {},
@@ -41,7 +42,7 @@ export default {
     },
     methods: {
         async loadData() {
-            this.data = await (await fetch(`/api/analytics/summary.json`, {cache: "no-store"})).json() as AnalyticsSummaryDto;
+            this.data = await API.get("/api/analytics/summary.json") as AnalyticsSummaryDto;
         },
     },
 

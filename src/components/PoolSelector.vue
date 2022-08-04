@@ -26,6 +26,7 @@
 
 <script lang="ts">
 import type { PoolInfoDto } from "../../env";
+import API from "@/util/API";
 
 export default {
     components: {},
@@ -46,7 +47,7 @@ export default {
     },
     methods: {
         async loadPoolInfo() {
-            const pools = await (await fetch(`/api/pools-info.json`, {cache: "no-store"})).json() as PoolInfoDto[];
+            const pools = await API.get("/api/pools-info.json") as PoolInfoDto[];
             let selectedPool;
             for (let i = 0; i < pools.length; i++) {
                 const pool = pools[i];

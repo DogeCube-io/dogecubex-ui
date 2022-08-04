@@ -3,16 +3,16 @@ import { defineStore } from "pinia";
 export const useGlobalErrorStore = defineStore({
     id: "GlobalError",
     state: () => ({
-        error: "",
+        _error: "",
     }),
     getters: {
-        error: (state) => state.error
+        error: (state) => state._error
     },
     actions: {
         async setError(value: string) {
             console.log("set err" + value);
             // noinspection JSConstantReassignment
-            this.error = value;
+            this._error = value;
         }
     },
 });

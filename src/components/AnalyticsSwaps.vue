@@ -35,6 +35,7 @@
 <script lang="ts">
 import type { TokenSwapDto } from "../../env";
 import Utils from "@/util/Utils";
+import API from "@/util/API";
 
 export default {
     components: {},
@@ -66,7 +67,7 @@ export default {
     methods: {
         async loadData() {
             const url = `/api/analytics/swaps.json` + (this.symbol ? "?symbol=" + this.symbol : "");
-            this.data = await (await fetch(url, {cache: "no-store"})).json() as TokenSwapDto[] || [];
+            this.data = await API.get(url) as TokenSwapDto[] || [];
         },
         displayCurrency(amount: string | number) {
             return Utils.displayCurrency(amount);
