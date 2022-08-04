@@ -1,7 +1,7 @@
 <template>
     <footer id="footer">
         <div>
-            <div style="display: flex" class="justify-content-center contact-icons">
+            <div v-if="showSocials"  style="display: flex" class="justify-content-center contact-icons">
                 <span>Community: </span>
                 <ul class="list-unstyled d-flex">
                     <li class="ms-3"><a class="link-dark" target="_blank" href="https://t.me/DOGECUBE"><icon-telegram /></a></li>
@@ -22,9 +22,16 @@
 import IconTelegram from "@/components/icons/socials/IconTelegram.vue";
 import IconTwitter from "@/components/icons/socials/IconTwitter.vue";
 import IconInstagram from "@/components/icons/socials/IconInstagram.vue";
+import { useRoute } from "vue-router";
 export default {
     name: "TheFooter",
-    components: {IconInstagram, IconTwitter, IconTelegram}
+    components: {IconInstagram, IconTwitter, IconTelegram},
+    computed: {
+        showSocials() {
+            const route = useRoute();
+            return route.path !== "/";
+        }
+    }
 }
 </script>
 
