@@ -36,16 +36,16 @@
                         </info-column>
                         <info-column>
                             <template  v-slot:header>Fully Diluted Valuation</template>
-                            <code class="">{{ displayCurrency(data.analytics.valuation) }}</code> <span> XRD</span>
+                            <code class="">{{ displayCurrency0(data.analytics.valuation) }}</code> <span> XRD</span>
                         </info-column>
                         <info-column>
                             <template  v-slot:header>Pooled Liquidity</template>
                             <div class="row">
                                 <span v-if="data.analytics.liquidityA" >
-                                    <code class="">{{ displayCurrency(data.analytics.liquidityA) }}</code> <span> {{ data.symbol }}</span>
+                                    <code class="">{{ displayCurrency0(data.analytics.liquidityA) }}</code> <span> {{ data.symbol }}</span>
                                 </span>
                                 <span>
-                                    <code class="">{{ displayCurrency(data.analytics.liquidityB) }}</code> <span> XRD</span>
+                                    <code class="">{{ displayCurrency0(data.analytics.liquidityB) }}</code> <span> XRD</span>
                                 </span>
                             </div>
                         </info-column>
@@ -58,8 +58,8 @@
                             <template  v-slot:header>
                                 Trading Volume <sup>24h</sup>/<sub>7d</sub>
                             </template>
-                            <sup><code class="">{{ displayCurrency(data.analytics.volume24h) }}</code></sup> /
-                            <sub><code class="">{{ displayCurrency(data.analytics.volume7d) }}</code></sub>
+                            <sup><code class="">{{ displayCurrency0(data.analytics.volume24h) }}</code></sup> /
+                            <sub><code class="">{{ displayCurrency0(data.analytics.volume7d) }}</code></sub>
                             <span> XRD</span>
                         </info-column>
                         <info-column>
@@ -76,7 +76,7 @@
                         </info-column>
                     </div>
                 </div>
-                <div v-if="symbol" class="row text-center shadow-sm py-2 mx-auto">
+                <div v-if="symbol && symbol !== 'XRD'" class="row text-center shadow-sm py-2 mx-auto">
                     <div class="text-center my-3 col-lg-8">
                         <TVChartContainer :symbol="symbol" />
                     </div>
@@ -165,6 +165,9 @@ export default {
         },
         displayCurrency(amount: string | number) {
             return Utils.displayCurrency(amount);
+        },
+        displayCurrency0(amount: string | number) {
+            return Utils.displayCurrency0(amount);
         },
     },
     computed: {},

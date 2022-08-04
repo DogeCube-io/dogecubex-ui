@@ -66,7 +66,7 @@ export default {
     },
     methods: {
         async loadData() {
-            const url = `/api/analytics/swaps.json` + (this.symbol ? "?symbol=" + this.symbol : "");
+            const url = `/api/analytics/swaps.json` + (this.symbol && this.symbol !== "XRD" ? "?symbol=" + this.symbol : "");
             this.data = await API.get(url) as TokenSwapDto[] || [];
         },
         displayCurrency(amount: string | number) {
