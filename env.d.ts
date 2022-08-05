@@ -133,6 +133,7 @@ declare type TokenSwapDto = {
 declare type TokenDetailsDto = {
     symbol: string;
     description: string;
+    poolAccount: string;
     tokenInfoUrl: string;
     totalSupply: number;
 

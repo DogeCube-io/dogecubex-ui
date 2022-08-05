@@ -31,21 +31,27 @@
                 <div class="row text-center" v-if="data.symbol">
                     <div class="my-3 col-lg-4">
                         <info-column>
-                            <template  v-slot:header>Total Supply</template>
-                            <code class="">{{ displayCurrency(data.totalSupply) }}</code> <span> {{ data.symbol }}</span>
+                            <template v-slot:header>Total Supply</template>
+                            <code class="">{{ displayCurrency(data.totalSupply) }}</code> <span> {{
+                                data.symbol
+                            }}</span>
                         </info-column>
                         <info-column>
-                            <template  v-slot:header>Fully Diluted Valuation</template>
+                            <template v-slot:header>Fully Diluted Valuation</template>
                             <code class="">{{ displayCurrency0(data.analytics.valuation) }}</code> <span> XRD</span>
                         </info-column>
                         <info-column>
-                            <template  v-slot:header>Pooled Liquidity</template>
+                            <template v-slot:header>Pooled Liquidity</template>
                             <div class="row">
-                                <span v-if="data.analytics.liquidityA" >
-                                    <code class="">{{ displayCurrency0(data.analytics.liquidityA) }}</code> <span> {{ data.symbol }}</span>
+                                <span v-if="data.analytics.liquidityA">
+                                    <code class="">{{
+                                            displayCurrency0(data.analytics.liquidityA)
+                                        }}</code> <span> {{ data.symbol }}</span>
                                 </span>
                                 <span>
-                                    <code class="">{{ displayCurrency0(data.analytics.liquidityB) }}</code> <span> XRD</span>
+                                    <code class="">{{
+                                            displayCurrency0(data.analytics.liquidityB)
+                                        }}</code> <span> XRD</span>
                                 </span>
                             </div>
                         </info-column>
@@ -55,7 +61,7 @@
                     </div>
                     <div class="text-left my-3 col-lg-4">
                         <info-column>
-                            <template  v-slot:header>
+                            <template v-slot:header>
                                 Trading Volume <sup>24h</sup>/<sub>7d</sub>
                             </template>
                             <code class="">{{ displayCurrency0(data.analytics.volume24h) }}</code> /
@@ -63,32 +69,52 @@
                             <span> XRD</span>
                         </info-column>
                         <info-column>
-                            <template  v-slot:header>
+                            <template v-slot:header>
                                 Price Change <sup>24h</sup>/<sub>7d</sub>
                             </template>
-                            <price-change :value="data.analytics.priceChange24h" /> /
+                            <price-change :value="data.analytics.priceChange24h" />
+                            /
                             <price-change :value="data.analytics.priceChange7d" />
                         </info-column>
                         <info-column>
-                            <template  v-slot:header>Price, XRD</template>
+                            <template v-slot:header>Price, XRD</template>
                             <code class="">{{ displayCurrency(data.analytics.price) }}</code>
                         </info-column>
                     </div>
                 </div>
                 <div v-if="symbol && symbol !== 'XRD'" class="row text-center shadow-sm py-2 mx-auto">
-                    <div class="text-center my-3 col-lg-8">
+                    <div class="text-center my-3 col-xl-8">
                         <TVChartContainer :symbol="symbol" />
                     </div>
-                    <div class="text-center col-lg-4" style="margin-bottom: auto;  margin-top: auto;">
-                        Space Intentionally Left Blank
+                    <div class="text-center col-xl-4" style="">
+                        <div class="d3x-text-white">
+                            <div class="row justify-content-center py-2 g-5">
+                                <div class="col-12" style="max-width: 450px;">
+                                    <span class="float-start">Pool account: </span>
+                                    <span class="d-inline-block float-end">
+                                    <span class="badge bg-info ms-1">{{ util.shortAddress(data.poolAccount) }}</span>
+                                        &nbsp;<button-copy clazz="white float-end" :value="data.poolAccount" />
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row justify-content-center pb-2 g-5">
+                                <div class="col-12"  style="max-width: 450px;">
+                                    <span>Trading Engine: </span>
+                                    <status-widget :symbol="symbol" :refresh-interval="3000" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row justify-content-center g-5">
+                            <swap-widget v-if="swapModel" :params="swapModel" :symbol="symbol" />
+                        </div>
                     </div>
                 </div>
                 <div v-if="symbol" class="row text-center shadow-sm py-3     mx-auto">
                     <div class="h5">
                         Recent Swaps
-                        <status-widget class="fs-6" :refresh-interval="15000" />
+                        <status-widget v-if="symbol === 'XRD'" class="fs-6" :refresh-interval="15000" />
                     </div>
-                    <analytics-swaps :symbol="symbol"/>
+                    <analytics-swaps :symbol="symbol" />
                 </div>
 
 
@@ -106,7 +132,7 @@
 </style>
 <script lang="ts">
 import TheHeader from "@/components/TheHeader.vue";
-import type { TokenDetailsDto } from "../../env";
+import type { SwapModel, TokenDetailsDto } from "../../env";
 import Utils from "../util/Utils";
 import IconHome from "@/components/icons/IconHome.vue";
 import IconExternalLink from "@/components/icons/IconExternalLink.vue";
@@ -116,15 +142,22 @@ import AnalyticsSwaps from "@/components/AnalyticsSwaps.vue";
 import StatusWidget from "@/components/StatusWidget.vue";
 import TVChartContainer from "@/components/TVChartContainer.vue";
 import API from "@/util/API";
+import SwapWidget from "@/components/SwapWidget.vue";
+import ButtonCopy from "@/components/sub/ButtonCopy.vue";
 
 export default {
     components: {
+        ButtonCopy,
+        SwapWidget,
         TVChartContainer,
-        StatusWidget, AnalyticsSwaps, InfoColumn, PriceChange, IconExternalLink, IconHome, TheHeader},
+        StatusWidget, AnalyticsSwaps, InfoColumn, PriceChange, IconExternalLink, IconHome, TheHeader
+    },
     data() {
         return {
             symbol: "",
             data: {} as TokenDetailsDto,
+
+            swapModel: null as never as SwapModel,
 
             statusInterval: null,
         }
@@ -136,6 +169,11 @@ export default {
         if (!this.symbol) {
             this.symbol = "DGC";
         }
+
+        this.swapModel = {
+            to: this.symbol,
+            xrd: 100,
+        };
 
         this.loadData();
         this.statusInterval = setInterval(this.loadData, 15000);
@@ -169,7 +207,11 @@ export default {
             return Utils.displayCurrency0(amount);
         },
     },
-    computed: {},
+    computed: {
+        util() {
+            return Utils;
+        },
+    },
     watch: {
         symbol(newVal) {
             const queryParams = this.getQueryParams();

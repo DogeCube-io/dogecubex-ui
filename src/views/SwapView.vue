@@ -34,15 +34,10 @@
                         </RouterLink>
                     </div>
                 </div>
-                <div class="row justify-content-center pb-2">
-                    <div class="col-12 ">
-
-                    </div>
-                </div>
             </div>
             <div class="col-lg-6 mx-auto container ">
                 <div class="row justify-content-center g-5">
-                    <swap-widget ref="swapWidget" v-if="queryParams" :params="queryParams"
+                    <swap-widget v-if="queryParams" :params="queryParams"
                                  @on-update-model="onParamsUpdate" :symbol="selectedPoolSymbol" />
                 </div>
             </div>
