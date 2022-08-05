@@ -32,9 +32,9 @@ export default {
             }
             // noinspection SuspiciousTypeOfGuard
             if (typeof this.value === "string") {
-                return this.value.charAt(0) === "-" ? this.value : "+" + this.value;
+                return this.value.charAt(0) === "-" ? this.value + " %" : "+" + this.value + " %";
             }
-            return Utils.strWithSign(this.value);
+            return Utils.strWithSign(this.value) + " %";
         },
     },
     methods: {}

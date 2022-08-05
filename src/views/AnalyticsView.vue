@@ -37,8 +37,7 @@
 
 #tokens td.tiny {
     min-width: 5px;
-    padding-left: 0;
-    padding-right: 0;
+    padding: 6px 0 0 0;
 }
 
 #swaps td {

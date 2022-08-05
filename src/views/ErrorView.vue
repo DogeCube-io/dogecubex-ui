@@ -5,7 +5,7 @@ import { useGlobalErrorStore } from "@/stores/GlobalErrorStore";</script>
     <main>
         <div class="px-4 py-5 my-5 text-center">
             An error has occurred. <br>
-            <div>{{ useGlobalErrorStore().error }}</div>
+            <div><code>{{ useGlobalErrorStore().error }}</code></div>
             Please try to go back or start from <a href="/">Home</a>.
         </div>
     </main>

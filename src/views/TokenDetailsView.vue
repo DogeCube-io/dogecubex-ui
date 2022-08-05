@@ -58,17 +58,16 @@
                             <template  v-slot:header>
                                 Trading Volume <sup>24h</sup>/<sub>7d</sub>
                             </template>
-                            <sup><code class="">{{ displayCurrency0(data.analytics.volume24h) }}</code></sup> /
-                            <sub><code class="">{{ displayCurrency0(data.analytics.volume7d) }}</code></sub>
+                            <code class="">{{ displayCurrency0(data.analytics.volume24h) }}</code> /
+                            <code class="">{{ displayCurrency0(data.analytics.volume7d) }}</code>
                             <span> XRD</span>
                         </info-column>
                         <info-column>
                             <template  v-slot:header>
                                 Price Change <sup>24h</sup>/<sub>7d</sub>
                             </template>
-                            <sup><price-change :value="data.analytics.priceChange24h" /></sup> /
-                            <sub><price-change :value="data.analytics.priceChange7d" /></sub>
-                            <span> %</span>
+                            <price-change :value="data.analytics.priceChange24h" /> /
+                            <price-change :value="data.analytics.priceChange7d" />
                         </info-column>
                         <info-column>
                             <template  v-slot:header>Price, XRD</template>
@@ -100,7 +99,7 @@
 
 <style>
 .TVChartContainer {
-    min-height: calc(100vh - 240px);
+    min-height: 300px;
     height: calc(100vh - 240px);
 }
 

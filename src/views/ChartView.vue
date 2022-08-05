@@ -103,6 +103,7 @@ export default {
 
 .TVChartContainer {
     height: calc(100vh - 200px);
+    min-height: 350px;
 }
 
 </style>

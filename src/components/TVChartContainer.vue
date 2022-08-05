@@ -24,6 +24,8 @@ export default {
         return {
             tvWidget: null,
             tvSaveLoadAdapter: null,
+            focusListener: null,
+
             get interval() {
                 return localStorage.getItem("tradingview.chart.lastUsedTimeBasedResolution") || "1D";
             },
@@ -49,10 +51,11 @@ export default {
 
         const container = this.$refs.chartContainer;
         const tvSaveLoadAdapter = new TVSaveLoadAdapter(this.symbol);
+        const dataFeed = new UDFCompatibleDatafeed(API.baseUrl + "/api/charts", 30000);
         const widgetOptions = {
             symbol: this.symbol,
             // BEWARE: no trailing slash is expected in feed URL
-            datafeed: new UDFCompatibleDatafeed(API.baseUrl + "/api/charts", 10000), // 30000
+            datafeed: dataFeed,
             // datafeed: new UDFCompatibleDatafeed("https://demo_feed.tradingview.com"),
             interval: this.interval,
             container: container,
@@ -151,18 +154,26 @@ export default {
             // });
         });
 
+        this.focusListener = () => {
+            (<any> dataFeed)._dataPulseProvider._updateData();
+        }
+        window.addEventListener('focus', this.focusListener);
+
     },
     unmounted() {
         if (this.tvWidget !== null) {
             this.tvWidget.remove();
             this.tvWidget = null;
         }
+        if (this.focusListener) {
+            window.removeEventListener('focus', this.focusListener);
+            this.focusListener = null;
+        }
     },
     computed: {
     },
     watch: {
         symbol(newVal) {
-            console.log(arguments);
             this.tvSaveLoadAdapter.currentSymbol = newVal;
             this.tvWidget.setSymbol(newVal, this.interval);
         },

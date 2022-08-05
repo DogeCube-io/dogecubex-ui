@@ -22,7 +22,7 @@ export default class Utils {
     }
 
     static displayCurrency0(amount: string | number): string {
-        return this.formatLong.format(Number(amount)).split(".")[0];
+        return this.formatLong.format(Math.round(Number(amount))).split(".")[0];
     }
 
     static str(amount: number): string {

@@ -14,6 +14,15 @@ declare type RouteRecordWithTitle = {
     }
 } & RouteRecordRaw;
 
+// Models
+declare type SwapModel = {
+    from: string | null,
+    to: string | null,
+    amount: string | null,
+    xrd: string | null,
+}
+
+
 
 /* DTO types */
 declare type AmmConfigDto = {
