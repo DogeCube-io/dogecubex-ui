@@ -28,7 +28,7 @@
                             >{{ shortRri(token.rri) }}</a></td>
                             <td>{{ token.description }}</td>
                             <td v-if="token.price !== null">
-                                <RouterLink class="link-dark fs-5" :to="{ path: '/token', query: {symbol: token.symbol} }"> <icon-details/></RouterLink>
+                                <RouterLink class="link-dark fs-5" :to="{ path: '/info', query: {symbol: token.symbol} }"> <icon-details/></RouterLink>
                             </td>
                             <td v-else></td>
                         </tr>

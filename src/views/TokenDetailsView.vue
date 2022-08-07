@@ -1,5 +1,5 @@
 <template>
-    <TheHeader active-page="Token" :show-images="true" />
+    <TheHeader active-page="Info" :show-images="true" />
     <main>
         <div class="px-4 my-3">
             <br>
@@ -15,6 +15,7 @@
                         <h5 class="d3x-text-gray ms-2" style="display: inline;  vertical-align: super;">
                             ({{ data.symbol }})
                         </h5>
+                        <p class="d3x-text-gray mt-3 align-middle">{{ data.description }}</p>
                     </div>
                     <div class="text-center my-3 col-lg-4">
                         <h5 class="ms-2 float-end" style="display: inline;  vertical-align: super;">
@@ -29,7 +30,7 @@
                     </div>
                 </div>
                 <div class="row text-center" v-if="data.symbol">
-                    <div class="my-3 col-lg-4">
+                    <div class="my-2 col-lg-4">
                         <info-column>
                             <template v-slot:header>Total Supply</template>
                             <code class="">{{ displayCurrency(data.totalSupply) }}</code> <span> {{
@@ -56,10 +57,10 @@
                             </div>
                         </info-column>
                     </div>
-                    <div class="my-3 col-lg-4">
-                        <p class="d3x-text-gray align-middle">{{ data.description }}</p>
+                    <div class="my-2 col-lg-4">
+
                     </div>
-                    <div class="text-left my-3 col-lg-4">
+                    <div class="my-2 col-lg-4">
                         <info-column>
                             <template v-slot:header>
                                 Trading Volume <sup>24h</sup>/<sub>7d</sub>
@@ -88,7 +89,13 @@
                     </div>
                     <div class="text-center col-xl-4" style="">
                         <div class="d3x-text-white">
-                            <div class="row justify-content-center py-2 g-5">
+                            <div class="row justify-content-center pt-3 pb-2 g-5">
+                                <div class="col-12" style="max-width: 450px;">
+                                    <span>Trading Engine: </span>
+                                    <status-widget :symbol="symbol" :refresh-interval="3000" />
+                                </div>
+                            </div>
+                            <div class="row justify-content-center pb-2 g-5">
                                 <div class="col-12" style="max-width: 450px;">
                                     <span class="float-start">Pool account: </span>
                                     <span class="d-inline-block float-end">
@@ -97,15 +104,10 @@
                                     </span>
                                 </div>
                             </div>
-                            <div class="row justify-content-center pb-2 g-5">
-                                <div class="col-12"  style="max-width: 450px;">
-                                    <span>Trading Engine: </span>
-                                    <status-widget :symbol="symbol" :refresh-interval="3000" />
-                                </div>
-                            </div>
                         </div>
                         <div class="row justify-content-center g-5">
-                            <swap-widget v-if="swapModel" :params="swapModel" :symbol="symbol" />
+                            <swap-widget v-if="swapModel" :params="swapModel" :symbol="symbol"
+                                         @on-update-model="onParamsUpdate" />
                         </div>
                     </div>
                 </div>
@@ -144,6 +146,7 @@ import TVChartContainer from "@/components/TVChartContainer.vue";
 import API from "@/util/API";
 import SwapWidget from "@/components/SwapWidget.vue";
 import ButtonCopy from "@/components/sub/ButtonCopy.vue";
+import { useActiveStateStore } from "@/stores/ActiveStateStore";
 
 export default {
     components: {
@@ -164,18 +167,7 @@ export default {
     },
     props: {},
     async mounted() {
-        this.symbol = this.$route.query.symbol;
-
-        if (!this.symbol) {
-            this.symbol = "DGC";
-        }
-
-        this.swapModel = {
-            to: this.symbol,
-            xrd: 100,
-        };
-
-        this.loadData();
+        this.initState(this.$route.query.symbol);
         this.statusInterval = setInterval(this.loadData, 15000);
         window.addEventListener('focus', this.loadData);
     },
@@ -187,6 +179,35 @@ export default {
         window.removeEventListener('focus', this.loadData);
     },
     methods: {
+        initState(symbol?: string) {
+            this.symbol = symbol;
+
+            if (!this.symbol) {
+                this.symbol = this.ActiveStateStore.lastSymbol || "DGC";
+            } else {
+                this.ActiveStateStore.setSymbol(this.symbol);
+            }
+
+            const swapModel: SwapModel = {};
+
+            const mode = this.ActiveStateStore.mode;
+            if (mode === "SELL") {
+                swapModel.from = this.symbol;
+            } else {
+                swapModel.to = this.symbol;
+            }
+
+            const lastInput = this.ActiveStateStore.lastInputs[this.symbol];
+            if (lastInput && lastInput.amount) {
+                swapModel.amount = lastInput.amount;
+            } else {
+                swapModel.xrd = this.ActiveStateStore.xrd || "100";
+            }
+
+            this.swapModel = swapModel;
+
+            this.loadData();
+        },
         getQueryParams() {
             const qp = {};
             if (this.symbol) {
@@ -196,6 +217,11 @@ export default {
         },
         async loadData() {
             this.data = await API.get(`/api/token-details.json?symbol=${this.symbol}`);
+        },
+        onParamsUpdate(params: SwapModel) {
+            const symbol = params.from || params.to;
+            this.ActiveStateStore.setState(symbol, params.from ? "SELL" : "BUY");
+            this.ActiveStateStore.setAmount(symbol, params.amount, params.xrd);
         },
         shortRri(rri: string) {
             return Utils.shortRri(rri);
@@ -211,6 +237,9 @@ export default {
         util() {
             return Utils;
         },
+        ActiveStateStore() {
+            return useActiveStateStore();
+        },
     },
     watch: {
         symbol(newVal) {
@@ -221,7 +250,9 @@ export default {
             this.$router.replace({query: queryParams});
         },
         "$route.query": function (q) {
-            this.symbol = q.symbol;
+            if (this.symbol !== q.symbol) {
+                this.initState(q.symbol);
+            }
         },
     },
 }

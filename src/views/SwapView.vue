@@ -10,7 +10,13 @@
                                        :initial-selection="selectedPoolSymbol" @onPoolSelected="poolChanged" />
                     </div>
                 </div>
-                <div class="row justify-content-center py-2 g-5" v-show="selectedPool && selectedPool.account">
+                <div class="row justify-content-center py-2 g-5">
+                    <div class="col-12" style="max-width: 450px;">
+                        <span>Trading Engine: </span>
+                        <status-widget :symbol="selectedPoolSymbol" :refresh-interval="3000" />
+                    </div>
+                </div>
+                <div class="row justify-content-center pb-2 g-5" v-show="selectedPool && selectedPool.account">
                     <div v-if="selectedPool" class="col-12" style="max-width: 450px;">
                         <span class="float-start">Pool account: </span>
                         <span class="d-inline-block float-end">
@@ -19,21 +25,7 @@
                         </span>
                     </div>
                 </div>
-                <div class="row justify-content-center pb-2 g-5">
-                    <div class="col-12" style="max-width: 450px;">
-                        <span class="float-start">Trading Engine: </span>
-                        <status-widget :symbol="selectedPoolSymbol" :refresh-interval="3000" />
-                        <RouterLink class="btn btn-primary btn-sm ms-2 float-end"
-                                    :to="{ path: '/chart', query: {symbol: selectedPoolSymbol} }">
-                            <icon-graph-up />
-                        </RouterLink>
-                        <RouterLink class="btn btn-primary btn-sm float-end"
-                                    :to="{ path: '/token', query: {symbol: selectedPoolSymbol} }">
-                            <icon-details />
-                            Info
-                        </RouterLink>
-                    </div>
-                </div>
+
             </div>
             <div class="col-lg-6 mx-auto container ">
                 <div class="row justify-content-center g-5">
@@ -164,6 +156,7 @@ import IconDetails from "@/components/icons/IconDetails.vue";
 import IconGraphUp from "@/components/icons/IconGraphUp.vue";
 import SwapWidget from "@/components/SwapWidget.vue";
 import Models from "@/util/Models";
+import { useActiveStateStore } from "@/stores/ActiveStateStore";
 
 export default {
     components: {
@@ -183,10 +176,22 @@ export default {
         const query = Models.swapModel(this.$route.query);
 
         if (!query.to && !query.from) {
-            query.to = "DGC";
+            const symbol = this.ActiveStateStore.lastSymbol || "DGC";
+            const mode = this.ActiveStateStore.mode;
+            if (mode === "SELL") {
+                query.from = symbol;
+            } else {
+                query.to = symbol;
+            }
         }
         if (!query.amount && !query.xrd) {
-            query.xrd = "100";
+            const symbol = query.from || query.to;
+            const lastInput = this.ActiveStateStore.lastInputs[symbol];
+            if (lastInput && lastInput.amount) {
+                query.amount = lastInput.amount;
+            } else {
+                query.xrd = this.ActiveStateStore.xrd || "100";
+            }
         }
         this.queryParams = query;
     },
@@ -195,19 +200,36 @@ export default {
     methods: {
         poolChanged() {
             if (this.queryParams.to) {
-                const query = this.getQueryParams(this.queryParams);
+                let query = this.getQueryParams(this.queryParams);
                 query.to = this.selectedPool.token.symbol;
+                this.updateInputs(query, query.to);
                 this.queryParams = query;
             } else if (this.queryParams.from) {
-                const query = this.getQueryParams(this.queryParams);
+                let query = this.getQueryParams(this.queryParams);
                 query.from = this.selectedPool.token.symbol;
+                this.updateInputs(query, query.from);
                 this.queryParams = query;
+            }
+        },
+        updateInputs(query: SwapModel, symbol: string) {
+            const lastInput = this.ActiveStateStore.lastInputs[symbol];
+            if (lastInput) {
+                if (lastInput.xrd) {
+                    query.xrd = this.ActiveStateStore.xrd || lastInput.xrd; // ? is this possible ?
+                } else {
+                    delete query.xrd;
+                }
+                if (lastInput.amount) {
+                    query.amount = lastInput.amount;
+                } else {
+                    delete query.amount;
+                }
             }
         },
         onParamsUpdate(params: SwapModel) {
             this.queryParams = params;
         },
-        getQueryParams(swapModel) {
+        getQueryParams(swapModel): SwapModel {
             return Models.swapModel(swapModel);
         },
     },
@@ -234,6 +256,9 @@ export default {
         util() {
             return Utils;
         },
+        ActiveStateStore() {
+            return useActiveStateStore();
+        },
         AmmConfigStore() {
             return useAmmConfigStore();
         },
@@ -244,6 +269,9 @@ export default {
     watch: {
         queryParams(newVal) {
             const queryParams = this.getQueryParams(newVal);
+            const symbol = queryParams.from || queryParams.to;
+            this.ActiveStateStore.setState(symbol,queryParams.from ? "SELL" : "BUY");
+            this.ActiveStateStore.setAmount(symbol, queryParams.amount, queryParams.xrd);
             this.$router.replace({query: queryParams});
         },
         "$route.query": function (q) {

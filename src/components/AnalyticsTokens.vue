@@ -23,7 +23,7 @@
         <tr v-for="(token, idx) in data" v-bind:key="token.token.symbol">
             <th scope="row">{{ idx + 1 }}</th>
             <td class="text-start">
-                <RouterLink class="link-dark d3x-no-underline" :to="{ path: '/token', query: {symbol: token.token.symbol} }">
+                <RouterLink class="link-dark d3x-no-underline" :to="{ path: '/info', query: {symbol: token.token.symbol} }">
                     <img style="width:24px;height:24px;" :alt="token.token.symbol" :src="token.token.iconUrl"> <span>{{ token.token.name }}</span>
                 </RouterLink>
             </td>

@@ -4,9 +4,15 @@
 
 <script lang="ts">
 import { useAmmConfigStore } from "@/stores/AmmConfigStore";
+import WsConnector from "@/util/WsConnector";
 
 export default {
     name: "ConfigLoader",
+    data() {
+        return {
+            wsConnector: new WsConnector(),
+        };
+    },
     mounted() {
         this.fetchData();
     },
@@ -17,6 +23,7 @@ export default {
     },
     methods: {
         fetchData(): void {
+            this.wsConnector.connect();
             this.AmmConfigStore.loadConfig();
         }
     }

@@ -1,5 +1,5 @@
 <template>
-    <TheHeader active-page="Info" :show-images="true" />
+    <TheHeader active-page="HowTo" :show-images="true" />
     <main>
         <div class="px-4 my-5">
             <h1 class="display-6 fw-bold">&nbsp;</h1>

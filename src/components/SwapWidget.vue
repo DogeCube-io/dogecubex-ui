@@ -18,7 +18,7 @@
                     </button>
                 </h5>
             </div>
-            <slide-up-down v-model="showSettings" :duration="800">
+            <slide-up-down class="settings-area" v-model="showSettings" :duration="800">
                 <div class="row">
                     <div class="col text-start">
                         <label>Slippage tolerance:</label>
@@ -507,7 +507,7 @@ export default {
         amountFrom(newVal, oldVal) {
             if (this.isInputBySource) {
                 const t = typeof oldVal;
-                if (t === 'number' || (t === 'string' && oldVal)) {
+                if (t === 'number' || (t === 'string' && oldVal) || (!this.swapModel.xrd && !this.swapModel.amount)) {
                     if (this.mode === 'BUY') {
                         this.changeModel({
                             xrd: newVal,
@@ -524,9 +524,9 @@ export default {
             }
         },
         amountTo(newVal, oldVal) {
-            if (!this.isInputBySource && typeof oldVal === 'number') {
+            if (!this.isInputBySource) {
                 const t = typeof oldVal;
-                if (t === 'number' || (t === 'string' && oldVal)) {
+                if (t === 'number' || (t === 'string' && oldVal) || (!this.swapModel.xrd && !this.swapModel.amount)) {
                     if (this.mode === 'SELL') {
                         this.changeModel({
                             xrd: newVal,
@@ -543,6 +543,7 @@ export default {
         },
         params(newVal) {
             if (!this.swapModel || (this.swapModel.to !== newVal.to) || (this.swapModel.from !== newVal.from)) {
+                this.swapModel = newVal;
                 this.onModelChanged();
                 this.onChange(true);
             }
@@ -555,5 +556,7 @@ export default {
 </script>
 
 <style>
-
+.settings-area {
+    overflow-x: hidden;
+}
 </style>

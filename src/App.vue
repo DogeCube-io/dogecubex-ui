@@ -4,6 +4,7 @@ import TheFooter from "@/components/TheFooter.vue";
 import ConfigLoader from "@/components/ConfigLoader.vue";
 import { useGlobalErrorStore } from "@/stores/GlobalErrorStore";
 import ErrorView from "@/views/ErrorView.vue";
+import SwapNotification from "@/components/SwapNotification.vue";
 // empty line
 
 </script>
@@ -12,6 +13,7 @@ import ErrorView from "@/views/ErrorView.vue";
     <ErrorView v-if="useGlobalErrorStore().error" />
     <RouterView v-else />
     <ConfigLoader />
+    <swap-notification />
     <TheFooter />
 </template>
 

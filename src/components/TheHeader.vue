@@ -22,7 +22,7 @@
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" :class="dropdownClass"
-                               href="#" id="menu-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Info</a>
+                               href="#" id="menu-dropdown" data-bs-toggle="dropdown" aria-expanded="false">More</a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="menu-dropdown">
                                 <li v-for="(item, alias) in dropDownItems" v-bind:key="alias">
                                     <RouterLink :to="item.url" class="dropdown-item"
@@ -44,9 +44,9 @@ const dropDownItems: { [key: string]: { name: string; url: string; } } = {
         name: "About",
         url: "/about",
     },
-    Info: {
+    HowTo: {
         name: "How To Swap",
-        url: "/info",
+        url: "/how-to",
     },
     Tokens: {
         name: "Tokens",
@@ -73,7 +73,7 @@ export default {
     },
     computed: {
         headerItems(): string[] {
-            return ["Swap", "Analytics", "Chart", "FAQ"];
+            return ["Swap", "Info", "Chart", "Analytics",  "FAQ"];
         },
         dropdownClass(): string {
             return dropDownItems[this.activePage] ? "active" : "";

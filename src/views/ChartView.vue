@@ -7,11 +7,7 @@
                 <div id="pool-select-parent" class="col-lg-6">
                     <pool-selector v-model="selectedPool" :initial-selection="symbol" @onPoolSelected="poolChanged" />
                 </div>
-                <div class="col-lg-3">
-                    <RouterLink class="btn btn-primary" :to="{ path: '/token', query: {symbol: symbol} }">
-                        <icon-details/> Token Info
-                    </RouterLink>
-                </div>
+                <div class="col-lg-3"></div>
             </div>
             <br>
             <TVChartContainer v-if="symbol" :symbol="symbol" />
@@ -25,6 +21,7 @@ import TVChartContainer from "@/components/TVChartContainer.vue";
 import PoolSelector from "@/components/PoolSelector.vue";
 import type { PoolInfoDto } from "../../env";
 import IconDetails from "@/components/icons/IconDetails.vue";
+import { useActiveStateStore } from "@/stores/ActiveStateStore";
 
 export default {
     name: 'app',
@@ -41,7 +38,9 @@ export default {
         this.currency = this.$route.query.currency;
 
         if (!this.symbol) {
-            this.symbol = "DGC";
+            this.symbol = this.ActiveStateStore.lastSymbol || "DGC";
+        } else {
+            this.ActiveStateStore.setSymbol(this.symbol);
         }
     },
     methods: {
@@ -59,12 +58,18 @@ export default {
             this.symbol = this.selectedPool.token.symbol;
         },
     },
+    computed: {
+        ActiveStateStore() {
+            return useActiveStateStore();
+        },
+    },
     watch: {
         symbol(newVal) {
             const queryParams = this.getQueryParams();
             if (newVal) {
                 queryParams.symbol = newVal;
             }
+            this.ActiveStateStore.setSymbol(queryParams.symbol);
             this.$router.replace({ query: queryParams });
         },
         currency(newVal) {

@@ -34,8 +34,24 @@ const router = createRouter({
     scrollBehavior(to, from, savedPosition) {
         if (savedPosition) {
             return savedPosition;
+        } else if (to.hash) {
+            return new Promise((resolve, reject) => {
+                let offset = 60;
+                try {
+                    offset = document.getElementsByTagName('header')[0].offsetHeight;
+                } catch (e) {
+                    // ignore
+                }
+                setTimeout(() => {
+                    resolve({
+                        el: to.hash,
+                        top: offset + 40,
+                        behavior: 'smooth',
+                    })
+                }, 550)
+            });
         } else if (from.path !== to.path) {
-            return { top: 0 };
+            return {top: 0};
         }
         // always scroll to top
         // return { top: 0 }
@@ -64,10 +80,10 @@ const router = createRouter({
             }, 'About'),
         dogeRoute(
             {
-                path: "/info",
-                name: "info",
+                path: "/how-to",
+                name: "how-to",
                 component: HowToSwapView,
-            }, 'Info'),
+            }, 'How To'),
         dogeRoute(
             {
                 path: "/tokens",
@@ -100,10 +116,10 @@ const router = createRouter({
             }, 'Analytics'),
         dogeRoute(
             {
-                path: "/token",
-                name: "token-info",
+                path: "/info",
+                name: "info",
                 component: TokenDetailsView,
-            }, 'Token'),
+            }, 'Info'),
 
 
         // last
@@ -116,6 +132,31 @@ const router = createRouter({
 
     ],
 });
+
+function isEmpty(object: Record<string, unknown>): boolean {
+    for (const p in object) {
+        if (object.hasOwnProperty(p)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function isEqual(obj1: Record<string, unknown>, obj2: Record<string, unknown>): boolean {
+    const props1 = Object.getOwnPropertyNames(obj1);
+    const props2 = Object.getOwnPropertyNames(obj2);
+    if (props1.length !== props2.length) {
+        return false;
+    }
+    for (let i = 0; i < props1.length; i++) {
+        const val1 = obj1[props1[i]];
+        const val2 = obj2[props1[i]];
+        if (val1 !== val2) {
+            return false;
+        }
+    }
+    return true;
+}
 
 router.beforeEach((to, from, next) => {
     if (to.meta.title) {
@@ -131,7 +172,18 @@ router.beforeEach((to, from, next) => {
         });
     }
 
-    next();
+    if (to.name === from.name) {
+        if (isEmpty(to.query) || isEqual(from.query, to.query)) {
+            next(false);
+        } else {
+            (<any>to).force = true;
+            next();
+        }
+
+    } else {
+        next();
+    }
+
 });
 
 
