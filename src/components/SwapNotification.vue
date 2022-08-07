@@ -59,7 +59,7 @@ export default {
                 this.toast.info({
                     component: NotificationToast,
                     props: {
-                        swap: swap
+                        swap: {...swap}
                     },
                     listeners: {
                         viewClick: this.viewClick

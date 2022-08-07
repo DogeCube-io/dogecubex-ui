@@ -63,6 +63,9 @@ import PriceChange from "@/components/sub/PriceChange.vue";
 import Tooltip from "bootstrap/js/dist/tooltip";
 import IconGraphUp from "@/components/icons/IconGraphUp.vue";
 import API from "@/util/API";
+import { useSwapEventStore } from "@/stores/SwapEventStore";
+import { UnwrapRef } from "vue";
+import { TokenSwapDto } from "../../env";
 
 export default {
     components: {IconGraphUp, PriceChange, IconQuestion, IconArrowDown},
@@ -79,6 +82,9 @@ export default {
             return new Tooltip(tooltipTriggerEl);
         })
         this.loadData();
+
+        this.SwapEventStore.subscribe(this.onNewSwap);
+
         this.statusInterval = setInterval(this.loadData, 15000);
         window.addEventListener('focus', this.loadData);
     },
@@ -99,7 +105,15 @@ export default {
         displayCurrency0(amount: string | number) {
             return Utils.displayCurrency0(amount);
         },
+        onNewSwap(state: UnwrapRef<{ lastSwap: TokenSwapDto }>) {
+            this.loadData();
+        }
     },
+    computed: {
+        SwapEventStore() {
+            return useSwapEventStore();
+        },
+    }
 
 }
 </script>

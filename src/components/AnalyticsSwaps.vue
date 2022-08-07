@@ -36,6 +36,8 @@
 import type { TokenSwapDto } from "../../env";
 import Utils from "@/util/Utils";
 import API from "@/util/API";
+import { useSwapEventStore } from "@/stores/SwapEventStore";
+import { UnwrapRef } from "vue";
 
 export default {
     components: {},
@@ -54,6 +56,7 @@ export default {
     },
     async mounted() {
         this.loadData();
+        this.SwapEventStore.subscribe(this.onNewSwap);
         this.statusInterval = setInterval(this.loadData, 15000);
         window.addEventListener('focus', this.loadData);
     },
@@ -69,11 +72,22 @@ export default {
             const url = `/api/analytics/swaps.json` + (this.symbol && this.symbol !== "XRD" ? "?symbol=" + this.symbol : "");
             this.data = await API.get(url) as TokenSwapDto[] || [];
         },
+        onNewSwap(state: UnwrapRef<{ lastSwap: TokenSwapDto }>) {
+            const swap: TokenSwapDto = state.lastSwap;
+            if (!this.symbol || swap.tokenTo === this.symbol || swap.tokenFrom === this.symbol) {
+                this.loadData();
+            }
+        },
         displayCurrency(amount: string | number) {
             return Utils.displayCurrency(amount);
         },
         shortAddress(address: string) {
             return Utils.shortAddress(address);
+        },
+    },
+    computed: {
+        SwapEventStore() {
+            return useSwapEventStore();
         },
     },
 

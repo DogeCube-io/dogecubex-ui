@@ -18,6 +18,9 @@
 <script lang="ts">
 import type { AnalyticsSummaryDto } from "../../env";
 import API from "@/util/API";
+import { UnwrapRef } from "vue";
+import { TokenSwapDto } from "../../env";
+import { useSwapEventStore } from "@/stores/SwapEventStore";
 
 export default {
     components: {},
@@ -30,6 +33,7 @@ export default {
     },
     async mounted() {
         this.loadData();
+        this.SwapEventStore.subscribe(this.onNewSwap);
         this.statusInterval = setInterval(this.loadData, 15000);
         window.addEventListener('focus', this.loadData);
     },
@@ -44,7 +48,15 @@ export default {
         async loadData() {
             this.data = await API.get("/api/analytics/summary.json") as AnalyticsSummaryDto;
         },
+        onNewSwap(state: UnwrapRef<{ lastSwap: TokenSwapDto }>) {
+            this.loadData();
+        },
     },
+    computed: {
+        SwapEventStore() {
+            return useSwapEventStore();
+        },
+    }
 
 }
 </script>

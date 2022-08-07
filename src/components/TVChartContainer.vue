@@ -7,6 +7,9 @@ import { widget } from '../../public/charting_library';
 import { UDFCompatibleDatafeed } from "../../lib/datafeeds/udf/src/udf-compatible-datafeed";
 import TVSaveLoadAdapter from "@/util/TVSaveLoadAdapter";
 import API from "@/util/API";
+import { useSwapEventStore } from "@/stores/SwapEventStore";
+import { UnwrapRef } from "vue";
+import { TokenSwapDto } from "../../env";
 
 export default {
     name: 'TVChartContainer',
@@ -154,11 +157,12 @@ export default {
             // });
         });
 
+        this.SwapEventStore.subscribe(this.onNewSwap);
+
         this.focusListener = () => {
             (<any> dataFeed)._dataPulseProvider._updateData();
         }
         window.addEventListener('focus', this.focusListener);
-
     },
     unmounted() {
         if (this.tvWidget !== null) {
@@ -170,7 +174,19 @@ export default {
             this.focusListener = null;
         }
     },
+    methods: {
+        onNewSwap(state: UnwrapRef<{ lastSwap: TokenSwapDto }>) {
+            const swap: TokenSwapDto = state.lastSwap;
+            const symbol = swap.tokenTo !== "XRD" ? swap.tokenTo : swap.tokenFrom;
+            if (symbol === this.symbol) {
+                this.focusListener();
+            }
+        },
+    },
     computed: {
+        SwapEventStore() {
+            return useSwapEventStore();
+        },
     },
     watch: {
         symbol(newVal) {

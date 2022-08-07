@@ -147,6 +147,9 @@ import API from "@/util/API";
 import SwapWidget from "@/components/SwapWidget.vue";
 import ButtonCopy from "@/components/sub/ButtonCopy.vue";
 import { useActiveStateStore } from "@/stores/ActiveStateStore";
+import { useSwapEventStore } from "@/stores/SwapEventStore";
+import { UnwrapRef } from "vue";
+import { TokenSwapDto } from "../../env";
 
 export default {
     components: {
@@ -168,6 +171,7 @@ export default {
     props: {},
     async mounted() {
         this.initState(this.$route.query.symbol);
+        this.SwapEventStore.subscribe(this.onNewSwap);
         this.statusInterval = setInterval(this.loadData, 15000);
         window.addEventListener('focus', this.loadData);
     },
@@ -218,6 +222,12 @@ export default {
         async loadData() {
             this.data = await API.get(`/api/token-details.json?symbol=${this.symbol}`);
         },
+        onNewSwap(state: UnwrapRef<{ lastSwap: TokenSwapDto }>) {
+            const swap: TokenSwapDto = state.lastSwap;
+            if (swap.tokenFrom === this.symbol || swap.tokenTo === this.symbol) {
+                this.loadData();
+            }
+        },
         onParamsUpdate(params: SwapModel) {
             const symbol = params.from || params.to;
             this.ActiveStateStore.setState(symbol, params.from ? "SELL" : "BUY");
@@ -239,6 +249,9 @@ export default {
         },
         ActiveStateStore() {
             return useActiveStateStore();
+        },
+        SwapEventStore() {
+            return useSwapEventStore();
         },
     },
     watch: {

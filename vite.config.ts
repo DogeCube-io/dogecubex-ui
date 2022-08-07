@@ -8,11 +8,7 @@ export default defineConfig({
     plugins: [vue()],
     server: {
         proxy: {
-            // "/api/analytics/": "http://localhost:8080",
-            // "/api/engine-status.json": "http://localhost:8080",
-            // "/api/token-details.json": "http://localhost:8080",
             "/api/": "https://dogecubex.live",
-            // "/api/": "http://localhost:8080",
         }
     },
     resolve: {
