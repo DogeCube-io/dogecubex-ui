@@ -50,6 +50,7 @@ export default {
     data() {
         return {
             data: [] as TokenSwapDto[],
+            dataLoaded: false,
 
             statusInterval: null,
         }
@@ -70,7 +71,9 @@ export default {
     methods: {
         async loadData() {
             const url = `/api/analytics/swaps.json` + (this.symbol && this.symbol !== "XRD" ? "?symbol=" + this.symbol : "");
-            this.data = await API.get(url) as TokenSwapDto[] || [];
+            const promise = API.get(url);
+            this.dataLoaded = true;
+            this.data = await promise as TokenSwapDto[] || [];
         },
         onNewSwap(state: UnwrapRef<{ lastSwap: TokenSwapDto }>) {
             const swap: TokenSwapDto = state.lastSwap;
@@ -90,6 +93,13 @@ export default {
             return useSwapEventStore();
         },
     },
+    watch: {
+        symbol(newVal, oldVal) {
+            if (oldVal !== newVar && this.dataLoaded) {
+                this.loadData();
+            }
+        }
+    }
 
 }
 </script>

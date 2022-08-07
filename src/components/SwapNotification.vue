@@ -56,15 +56,18 @@ export default {
             }
             const swap: TokenSwapDto = state.lastSwap;
             if (this.isNotificationRelevant(swap)) {
+                const toastId = `t-${swap.user.substring(44)}-${swap.dateAdded}-${swap.tokenFrom}-${swap.tokenTo}`;
                 this.toast.info({
                     component: NotificationToast,
                     props: {
-                        swap: {...swap}
+                        swap: {...swap},
+                        elementId: toastId
                     },
                     listeners: {
                         viewClick: this.viewClick
                     }
                 }, {
+                    id: toastId,
                     position: "top-left",
                     timeout: 5000,
                     closeOnClick: false,
@@ -78,6 +81,14 @@ export default {
                     icon: false,
                     rtl: false
                 });
+                // toast's progress works only when the tab is active.
+                // Clear old irrelevant notifications after 1 minute.
+                setTimeout(()=> {
+                    const $el = document.getElementById(toastId);
+                    if ($el && $el.offsetHeight) {
+                        this.toast.dismiss(toastId);
+                    }
+                }, 60000);
             }
         },
     },

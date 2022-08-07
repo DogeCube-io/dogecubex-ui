@@ -21,7 +21,7 @@ app.component('slide-up-down', SlideUpDown);
 app.use(Toast, {
     shareAppContext: true,
     transition: "Vue-Toastification__bounce",
-    maxToasts: 5,
+    maxToasts: 3,
     newestOnTop: true
 });
 

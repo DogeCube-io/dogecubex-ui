@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div :id="elementId" class="container">
         <span class="msg-small" >
             <span v-if="swap.tokenFrom === 'XRD'">
                  <span v-if="swap.amountFrom >= 1500">🚀 </span>
@@ -26,7 +26,8 @@ export default {
     },
     emits: ["viewClick", "close-toast"],
     props: {
-        swap: null as never as TokenSwapDto
+        swap: null as never as TokenSwapDto,
+        elementId: String,
     },
     computed: {
         swapSymbol(): string {
