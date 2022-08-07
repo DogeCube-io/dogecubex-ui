@@ -32,10 +32,14 @@ export const useActiveStateStore = defineStore({
             }
             if (xrd) {
                 input.xrd = xrd;
-                this.xrd = xrd;
+                this.$patch({
+                    xrd: xrd as string,
+                });
             }
             lastInputs[symbol] = input;
-            this.lastInputs = lastInputs;
+            this.$patch((state) => {
+                state.lastInputs = lastInputs;
+            })
         },
     },
     persist: true,
