@@ -54,8 +54,9 @@ import AnalyticsSummary from "@/components/AnalyticsSummary.vue";
 import AnalyticsTokens from "@/components/AnalyticsTokens.vue";
 import StatusWidget from "@/components/StatusWidget.vue";
 import AnalyticsSwaps from "@/components/AnalyticsSwaps.vue";
+import { defineComponent } from "vue";
 
-export default {
+export default  defineComponent({
     components: {AnalyticsSwaps, StatusWidget, AnalyticsTokens, AnalyticsSummary, TheHeader},
     data() {
         return {};
@@ -69,5 +70,5 @@ export default {
             return this.AmmConfigStore.config || {};
         },
     },
-}
+});
 </script>

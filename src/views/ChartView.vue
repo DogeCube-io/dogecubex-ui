@@ -20,22 +20,22 @@ import TheHeader from "@/components/TheHeader.vue";
 import TVChartContainer from "@/components/TVChartContainer.vue";
 import PoolSelector from "@/components/PoolSelector.vue";
 import type { PoolInfoDto } from "../../env";
-import IconDetails from "@/components/icons/IconDetails.vue";
 import { useActiveStateStore } from "@/stores/ActiveStateStore";
+import { defineComponent } from "vue";
 
-export default {
+export default  defineComponent({
     name: 'app',
-    components: {IconDetails, TheHeader, TVChartContainer, PoolSelector},
+    components: {TheHeader, TVChartContainer, PoolSelector},
     data() {
         return {
             symbol: "",
             currency: "",
-            selectedPool: <PoolInfoDto><any>null,
+            selectedPool: null as never as PoolInfoDto,
         };
     },
     mounted() {
-        this.symbol = this.$route.query.symbol;
-        this.currency = this.$route.query.currency;
+        this.symbol = this.$route.query.symbol as string;
+        this.currency = this.$route.query.currency as string;
 
         if (!this.symbol) {
             this.symbol = this.ActiveStateStore.lastSymbol || "DGC";
@@ -45,7 +45,7 @@ export default {
     },
     methods: {
         getQueryParams() {
-            const qp = {};
+            const qp = {} as Record<string, string>;
             if (this.symbol) {
                 qp.symbol = this.symbol;
             }
@@ -84,7 +84,7 @@ export default {
             this.currency = q.currency;
         },
     }
-}
+});
 </script>
 
 <style lang="scss" scoped>

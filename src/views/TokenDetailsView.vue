@@ -14,6 +14,14 @@
                         </h4>
                         <h5 class="d3x-text-gray ms-2" style="display: inline;  vertical-align: super;">
                             ({{ data.symbol }})
+                            <span v-if="SettingsStore.notificationMode === '3'">
+                                <button v-if="!notificationsEnabled" class="bell-icon-off link-dark" @click="onNotificationClick(true)" type="button">
+                                    <icon-bell-off />
+                                </button>
+                                <button v-if="notificationsEnabled" class="bell-icon-on link-dark" @click="onNotificationClick(false)" type="button">
+                                    <icon-bell-on />
+                                </button>
+                            </span>
                         </h5>
                         <p class="d3x-text-gray mt-3 align-middle">{{ data.description }}</p>
                     </div>
@@ -98,8 +106,8 @@
                             <div class="row justify-content-center pb-2 g-5">
                                 <div class="col-12" style="max-width: 450px;">
                                     <span class="float-start">Pool account: </span>
-                                    <span class="d-inline-block float-end">
-                                    <span class="badge bg-info ms-1">{{ util.shortAddress(data.poolAccount) }}</span>
+                                    <span v-if="data.poolAccount" class="d-inline-block float-end">
+                                        <span class="badge bg-info ms-1">{{ util.shortAddress(data.poolAccount) }}</span>
                                         &nbsp;<button-copy clazz="white float-end" :value="data.poolAccount" />
                                     </span>
                                 </div>
@@ -131,10 +139,21 @@
     height: calc(100vh - 240px);
 }
 
+.bell-icon-off {
+    background-color: transparent;
+}
+.bell-icon-on {
+    background-color: transparent;
+    color: darkgreen;
+}
+.bell-icon-on:hover {
+    color: darkred;
+}
+
 </style>
 <script lang="ts">
 import TheHeader from "@/components/TheHeader.vue";
-import type { SwapModel, TokenDetailsDto } from "../../env";
+import type { SwapModel, TokenDetailsDto, TokenInfoModel } from "../../env";
 import Utils from "../util/Utils";
 import IconHome from "@/components/icons/IconHome.vue";
 import IconExternalLink from "@/components/icons/IconExternalLink.vue";
@@ -148,11 +167,17 @@ import SwapWidget from "@/components/SwapWidget.vue";
 import ButtonCopy from "@/components/sub/ButtonCopy.vue";
 import { useActiveStateStore } from "@/stores/ActiveStateStore";
 import { useSwapEventStore } from "@/stores/SwapEventStore";
-import { UnwrapRef } from "vue";
-import { TokenSwapDto } from "../../env";
+import { defineComponent } from "vue";
+import type { UnwrapRef } from "vue";
+import type { TokenSwapDto } from "../../env";
+import IconBellOff from "@/components/icons/IconBellOff.vue";
+import { useSettingsStore } from "@/stores/SettingsStore";
+import IconBellOn from "@/components/icons/IconBellOn.vue";
 
-export default {
+export default  defineComponent({
     components: {
+        IconBellOn,
+        IconBellOff,
         ButtonCopy,
         SwapWidget,
         TVChartContainer,
@@ -162,15 +187,16 @@ export default {
         return {
             symbol: "",
             data: {} as TokenDetailsDto,
+            notificationsEnabled: false,
 
             swapModel: null as never as SwapModel,
 
-            statusInterval: null,
+            statusInterval: null as ReturnType<typeof setInterval> | null,
         }
     },
     props: {},
     async mounted() {
-        this.initState(this.$route.query.symbol);
+        this.initState(this.$route.query.symbol as string);
         this.SwapEventStore.subscribe(this.onNewSwap);
         this.statusInterval = setInterval(this.loadData, 15000);
         window.addEventListener('focus', this.loadData);
@@ -184,7 +210,7 @@ export default {
     },
     methods: {
         initState(symbol?: string) {
-            this.symbol = symbol;
+            this.symbol = symbol || "";
 
             if (!this.symbol) {
                 this.symbol = this.ActiveStateStore.lastSymbol || "DGC";
@@ -203,17 +229,27 @@ export default {
 
             const lastInput = this.ActiveStateStore.lastInputs[this.symbol];
             if (lastInput && lastInput.amount) {
-                swapModel.amount = lastInput.amount;
+                swapModel.amount = String(lastInput.amount);
             } else {
                 swapModel.xrd = this.ActiveStateStore.xrd || "100";
             }
 
             this.swapModel = swapModel;
 
+            this.notificationsEnabled = this.SettingsStore.chosenSymbols.indexOf(this.symbol) > -1;
+
             this.loadData();
         },
-        getQueryParams() {
-            const qp = {};
+        onNotificationClick(enable: boolean) {
+            this.notificationsEnabled = enable;
+            if (enable) {
+                this.SettingsStore.addChosenSymbol(this.symbol);
+            } else {
+                this.SettingsStore.removeChosenSymbol(this.symbol);
+            }
+        },
+        getQueryParams(): TokenInfoModel {
+            const qp: TokenInfoModel = {};
             if (this.symbol) {
                 qp.symbol = this.symbol;
             }
@@ -229,7 +265,7 @@ export default {
             }
         },
         onParamsUpdate(params: SwapModel) {
-            const symbol = params.from || params.to;
+            const symbol = params.from || params.to || "";
             this.ActiveStateStore.setState(symbol, params.from ? "SELL" : "BUY");
             this.ActiveStateStore.setAmount(symbol, params.amount, params.xrd);
         },
@@ -253,6 +289,9 @@ export default {
         SwapEventStore() {
             return useSwapEventStore();
         },
+        SettingsStore() {
+            return useSettingsStore();
+        },
     },
     watch: {
         symbol(newVal) {
@@ -268,5 +307,5 @@ export default {
             }
         },
     },
-}
+});
 </script>

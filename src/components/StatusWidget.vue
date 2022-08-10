@@ -9,15 +9,16 @@
 <script lang="ts">
 import type { StatusStringDto } from "../../env";
 import API from "@/util/API";
+import { defineComponent } from "vue";
 
-export default {
+export default defineComponent( {
     components: {},
     data() {
         return {
             statusValue: "",
 
             requestId: 0,
-            statusInterval: null,
+            statusInterval: null as ReturnType<typeof setInterval> | null,
         }
     },
     props: {
@@ -69,7 +70,7 @@ export default {
             }
         },
     }
-}
+});
 </script>
 <style>
 </style>

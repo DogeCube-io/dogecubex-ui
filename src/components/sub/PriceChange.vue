@@ -7,8 +7,9 @@
 <script lang="ts">
 
 import Utils from "@/util/Utils";
+import { defineComponent } from "vue";
 
-export default {
+export default defineComponent({
     components: {},
     data() {
         return {}
@@ -24,7 +25,7 @@ export default {
             return !this.value ? 0 : this.value < 0 ? -1 : 1;
         },
         strWithSign(): string {
-            if (this.value === null) {
+            if (this.value == null) {
                 return "--";
             }
             if (this.signum === 0) {
@@ -32,11 +33,11 @@ export default {
             }
             // noinspection SuspiciousTypeOfGuard
             if (typeof this.value === "string") {
-                return this.value.charAt(0) === "-" ? this.value + " %" : "+" + this.value + " %";
+                return (this.value as string).charAt(0) === "-" ? this.value + " %" : "+" + this.value + " %";
             }
-            return Utils.strWithSign(this.value) + " %";
+            return Utils.strWithSign(this.value || 0) + " %";
         },
     },
     methods: {}
-}
+});
 </script>

@@ -8,12 +8,13 @@
 <script lang="ts">
 import IconCopy from "@/components/icons/IconCopy.vue";
 import Tooltip from "bootstrap/js/dist/tooltip";
+import { defineComponent } from "vue";
 
-export default {
+export default defineComponent({
     components: {IconCopy},
     data() {
         return {
-            tooltips: [],
+            tooltips: [] as Tooltip[],
         }
     },
     props: {
@@ -30,7 +31,7 @@ export default {
         copyValue() {
             window.navigator.clipboard.writeText(this.value);
 
-            let tooltip = new Tooltip(this.$refs.btnCopy, {
+            const tooltip = new Tooltip(this.$refs.btnCopy as Element, {
                 trigger: 'manual',
                 title: 'Copied',
                 placement: 'right',
@@ -49,5 +50,5 @@ export default {
 
         }
     }
-}
+});
 </script>

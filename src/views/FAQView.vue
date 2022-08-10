@@ -38,8 +38,9 @@
 import TheHeader from "@/components/TheHeader.vue";
 import type { AmmConfigDto } from "../../env";
 import { useAmmConfigStore } from "@/stores/AmmConfigStore";
+import { defineComponent } from "vue";
 
-export default {
+export default  defineComponent({
     components: {TheHeader},
     data() {
         return {
@@ -67,5 +68,5 @@ export default {
             return this.AmmConfigStore.config || {};
         },
     },
-}
+});
 </script>

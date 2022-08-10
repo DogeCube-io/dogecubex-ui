@@ -90,8 +90,9 @@
 import TheHeader from "@/components/TheHeader.vue";
 import type { StakerResponseDto } from "../../env";
 import API from "@/util/API";
+import { defineComponent } from "vue";
 
-export default {
+export default defineComponent({
     components: {TheHeader},
     data() {
         return {
@@ -105,5 +106,5 @@ export default {
     },
     methods: {},
     computed: {},
-}
+});
 </script>

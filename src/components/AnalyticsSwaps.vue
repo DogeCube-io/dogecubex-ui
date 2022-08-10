@@ -37,9 +37,10 @@ import type { TokenSwapDto } from "../../env";
 import Utils from "@/util/Utils";
 import API from "@/util/API";
 import { useSwapEventStore } from "@/stores/SwapEventStore";
-import { UnwrapRef } from "vue";
+import type { UnwrapRef } from "vue";
+import { defineComponent } from "vue";
 
-export default {
+export default defineComponent({
     components: {},
     props: {
         symbol: {
@@ -52,7 +53,7 @@ export default {
             data: [] as TokenSwapDto[],
             dataLoaded: false,
 
-            statusInterval: null,
+            statusInterval: null as ReturnType<typeof setInterval> | null,
         }
     },
     async mounted() {
@@ -95,13 +96,13 @@ export default {
     },
     watch: {
         symbol(newVal, oldVal) {
-            if (oldVal !== newVar && this.dataLoaded) {
+            if (oldVal !== newVal && this.dataLoaded) {
                 this.loadData();
             }
         }
     }
 
-}
+});
 </script>
 
 <style>

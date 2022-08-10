@@ -13,7 +13,9 @@
 <script lang="ts">
 
 
-export default {
+import { defineComponent } from "vue";
+
+export default defineComponent({
     components: {},
     data() {
         return {}
@@ -21,5 +23,5 @@ export default {
     props: {},
     computed: {},
     methods: {}
-}
+});
 </script>

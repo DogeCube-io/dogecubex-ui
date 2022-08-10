@@ -1,15 +1,19 @@
 <template>
     <header class="site-header sticky-top">
-        <nav class="navbar navbar-expand-sm navbar-dark bg-dark" :class="`page-${activePage && activePage.toLowerCase()}`">
+        <nav class="navbar navbar-expand-sm navbar-dark bg-dark"
+             :class="`page-${activePage && activePage.toLowerCase()}`">
             <div class="container-xxl">
                 <span class="separator"></span>
                 <a class="navbar-brand logo-wrap me-md-auto doge-logo" href="/">
                     <img v-if="showImages" src="/image/logo-default.png" alt="">
                 </a>
+
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#site-navbar"
                         aria-controls="site-navbar" aria-expanded="false" aria-label="Menu">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
+                <settings-dropdown btn-id="settings-dropdown-btn-sm" add-class="d-sm-none" />
 
                 <div class="collapse navbar-collapse" id="site-navbar">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
@@ -26,10 +30,13 @@
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="menu-dropdown">
                                 <li v-for="(item, alias) in dropDownItems" v-bind:key="alias">
                                     <RouterLink :to="item.url" class="dropdown-item"
-                                                :class="this.activePage === alias ? 'active' : '' ">{{ item.name }}
+                                                :class="activePage === alias ? 'active' : '' ">{{ item.name }}
                                     </RouterLink>
                                 </li>
                             </ul>
+                        </li>
+                        <li class="d-none d-sm-block ms-3">
+                            <settings-dropdown btn-id="settings-dropdown-btn" />
                         </li>
                     </ul>
                 </div>
@@ -39,6 +46,10 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
+import SettingsDropdown from "@/components/sub/SettingsDropdown.vue";
+
+
 const dropDownItems: { [key: string]: { name: string; url: string; } } = {
     About: {
         name: "About",
@@ -58,8 +69,12 @@ const dropDownItems: { [key: string]: { name: string; url: string; } } = {
     },
 };
 
-export default {
+export default defineComponent({
     name: "TheHeader",
+    components: {SettingsDropdown},
+    data() {
+        return {};
+    },
     props: {
         showImages: {
             type: Boolean,
@@ -73,18 +88,20 @@ export default {
     },
     computed: {
         headerItems(): string[] {
-            return ["Swap", "Info", "Chart", "Analytics",  "FAQ"];
+            return ["Swap", "Info", "Chart", "Analytics", "FAQ"];
         },
         dropdownClass(): string {
             return dropDownItems[this.activePage] ? "active" : "";
         },
         dropDownItems() {
             return dropDownItems;
-        }
-    }
-}
+        },
+    },
+});
 </script>
 
-<style scoped>
-
+<style>
+.site-header .navbar-toggler {
+    margin-left: auto;
+}
 </style>

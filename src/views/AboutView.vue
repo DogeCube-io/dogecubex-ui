@@ -25,7 +25,8 @@
                             sent amount and available liquidity.<br>
                             When you send tokens, you can optionally add a message that will determine refund<code><sup>*</sup></code>
                             conditions in case of a rapid price change -
-                            see <RouterLink to="/info">How To Swap</RouterLink> and the <RouterLink to="/swap">Swap Calculator</RouterLink> itself.<br>
+                            see <RouterLink to="/info">How To Swap</RouterLink> and the <RouterLink to="/swap"
+                        >Swap Calculator</RouterLink> itself.<br>
                         </div>
                         <div class="col-12">
                             <br>
@@ -102,8 +103,9 @@
 import TheHeader from "@/components/TheHeader.vue";
 import { useAmmConfigStore } from "@/stores/AmmConfigStore";
 import type { AmmConfigDto } from "../../env";
+import { defineComponent } from "vue";
 
-export default {
+export default defineComponent({
     components: {TheHeader},
     props: {},
     computed: {
@@ -114,5 +116,5 @@ export default {
             return this.AmmConfigStore.config || {};
         },
     },
-}
+});
 </script>

@@ -48,8 +48,9 @@ import type { TokenDto } from "../../env";
 import Utils from "../util/Utils";
 import IconDetails from "@/components/icons/IconDetails.vue";
 import API from "@/util/API";
+import { defineComponent } from "vue";
 
-export default {
+export default  defineComponent({
     components: {IconDetails, TheHeader},
     data() {
         return {
@@ -69,5 +70,5 @@ export default {
         }
     },
     computed: {},
-}
+});
 </script>

@@ -5,8 +5,9 @@
 <script lang="ts">
 import { useAmmConfigStore } from "@/stores/AmmConfigStore";
 import WsConnector from "@/util/WsConnector";
+import { defineComponent } from "vue";
 
-export default {
+export default defineComponent({
     name: "ConfigLoader",
     data() {
         return {
@@ -27,6 +28,6 @@ export default {
             this.AmmConfigStore.loadConfig();
         }
     }
-}
+});
 </script>
 

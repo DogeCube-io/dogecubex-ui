@@ -73,9 +73,6 @@
 
 .swap-settings {
     display: inline;
-    /*margin-top: -20px;*/
-    /*margin-left: 70px;*/
-    /*position: absolute;*/
     z-index: 10;
     padding: 0 3px 2px 3px;
     border: black 1px solid;
@@ -145,27 +142,21 @@ import TheHeader from "@/components/TheHeader.vue";
 import type { AmmConfigDto, PoolInfoDto, SwapModel } from "../../env";
 import Utils from "../util/Utils";
 import ButtonCopy from "@/components/sub/ButtonCopy.vue";
-import IconSliders from "@/components/icons/IconSliders.vue";
-import IconArrowDown from "@/components/icons/IconArrowDown.vue";
-import IconChangeDirection from "@/components/icons/IconChangeDirection.vue";
-import IconInfo from "@/components/icons/IconInfo.vue";
 import { useAmmConfigStore } from "@/stores/AmmConfigStore";
 import PoolSelector from "@/components/PoolSelector.vue";
 import StatusWidget from "@/components/StatusWidget.vue";
-import IconDetails from "@/components/icons/IconDetails.vue";
-import IconGraphUp from "@/components/icons/IconGraphUp.vue";
 import SwapWidget from "@/components/SwapWidget.vue";
 import Models from "@/util/Models";
 import { useActiveStateStore } from "@/stores/ActiveStateStore";
+import { defineComponent } from "vue";
 
-export default {
+export default defineComponent({
     components: {
-        SwapWidget, IconGraphUp, IconDetails, StatusWidget,
-        PoolSelector, IconInfo, IconChangeDirection, IconArrowDown, IconSliders, ButtonCopy, TheHeader
+        SwapWidget, StatusWidget, PoolSelector, ButtonCopy, TheHeader
     },
     data() {
         return {
-            selectedPool: <PoolInfoDto><any>null,
+            selectedPool: null as never as PoolInfoDto,
 
             swapModel: null as never as SwapModel,
             queryParams: null as never as SwapModel,
@@ -185,27 +176,25 @@ export default {
             }
         }
         if (!query.amount && !query.xrd) {
-            const symbol = query.from || query.to;
+            const symbol = query.from || query.to || "";
             const lastInput = this.ActiveStateStore.lastInputs[symbol];
             if (lastInput && lastInput.amount) {
-                query.amount = lastInput.amount;
+                query.amount = String(lastInput.amount);
             } else {
                 query.xrd = this.ActiveStateStore.xrd || "100";
             }
         }
         this.queryParams = query;
     },
-    unmounted() {
-    },
     methods: {
         poolChanged() {
             if (this.queryParams.to) {
-                let query = this.getQueryParams(this.queryParams);
+                const query = this.getQueryParams(this.queryParams);
                 query.to = this.selectedPool.token.symbol;
                 this.updateInputs(query, query.to);
                 this.queryParams = query;
             } else if (this.queryParams.from) {
-                let query = this.getQueryParams(this.queryParams);
+                const query = this.getQueryParams(this.queryParams);
                 query.from = this.selectedPool.token.symbol;
                 this.updateInputs(query, query.from);
                 this.queryParams = query;
@@ -215,12 +204,12 @@ export default {
             const lastInput = this.ActiveStateStore.lastInputs[symbol];
             if (lastInput) {
                 if (lastInput.xrd) {
-                    query.xrd = this.ActiveStateStore.xrd || lastInput.xrd; // ? is this possible ?
+                    query.xrd = String(this.ActiveStateStore.xrd || lastInput.xrd); // ? is this possible ?
                 } else {
                     delete query.xrd;
                 }
                 if (lastInput.amount) {
-                    query.amount = lastInput.amount;
+                    query.amount = String(lastInput.amount);
                 } else {
                     delete query.amount;
                 }
@@ -229,7 +218,7 @@ export default {
         onParamsUpdate(params: SwapModel) {
             this.queryParams = params;
         },
-        getQueryParams(swapModel): SwapModel {
+        getQueryParams(swapModel: SwapModel): SwapModel {
             return Models.swapModel(swapModel);
         },
     },
@@ -269,8 +258,8 @@ export default {
     watch: {
         queryParams(newVal) {
             const queryParams = this.getQueryParams(newVal);
-            const symbol = queryParams.from || queryParams.to;
-            this.ActiveStateStore.setState(symbol,queryParams.from ? "SELL" : "BUY");
+            const symbol = queryParams.from || queryParams.to || "";
+            this.ActiveStateStore.setState(symbol, queryParams.from ? "SELL" : "BUY");
             this.ActiveStateStore.setAmount(symbol, queryParams.amount, queryParams.xrd);
             this.$router.replace({query: queryParams});
         },
@@ -278,5 +267,5 @@ export default {
             this.queryParams = Models.swapModel(q);
         },
     }
-}
+});
 </script>

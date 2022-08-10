@@ -77,10 +77,11 @@
 </style>
 <script lang="ts">
 import TheHeader from "@/components/TheHeader.vue";
+import { defineComponent } from "vue";
 
-export default {
+export default defineComponent({
     components: {TheHeader},
     props: {},
     computed: {},
-}
+});
 </script>

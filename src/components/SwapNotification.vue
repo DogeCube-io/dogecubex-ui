@@ -7,26 +7,27 @@ import type { TokenSwapDto } from "../../env";
 import { useSwapEventStore } from "@/stores/SwapEventStore";
 import { useActiveStateStore } from "@/stores/ActiveStateStore";
 import type { UnwrapRef } from "vue";
+import { defineComponent } from "vue";
+import type { POSITION } from "vue-toastification";
 import { useToast } from "vue-toastification";
 import type { ToastInterface } from "vue-toastification/src/ts/interface";
 import NotificationToast from "@/components/sub/NotificationToast.vue";
+import type { Router } from "vue-router";
 import { useRouter } from "vue-router";
-import Router from "@/router";
+import { useSettingsStore } from "@/stores/SettingsStore";
 
-export default {
+export default defineComponent({
     components: {},
     data() {
         return {
             toast: null as never as ToastInterface,
-            router: Router,
+            router: null as never as Router,
         }
     },
     mounted() {
-        this.router = useRouter();
+        (this as any).router = useRouter();
         this.toast = useToast();
         this.SwapEventStore.subscribe(this.processSwap);
-    },
-    unmounted() {
     },
     computed: {
         SwapEventStore() {
@@ -35,8 +36,8 @@ export default {
         ActiveStateStore() {
             return useActiveStateStore();
         },
-        symbol() {
-            return this.ActiveStateStore.activeSymbol;
+        SettingsStore() {
+            return useSettingsStore();
         },
         showNotifications() {
             return window.location.pathname !== "/";
@@ -46,9 +47,26 @@ export default {
         viewClick(symbol: string) {
             this.router.push({path: '/info', query: {symbol: symbol}, hash: "#swaps"});
         },
+        isNotifyForChosenSymbol(swap: TokenSwapDto) {
+            const symbols = `-${this.SettingsStore.chosenSymbols}-`;
+            return symbols.indexOf(`-${swap.tokenFrom}-`) > -1 || symbols.indexOf(`-${swap.tokenTo}-`) > -1;
+        },
+        isNotifyForActiveSymbol(swap: TokenSwapDto) {
+            const symbol = this.ActiveStateStore.activeSymbol;
+            return symbol && (swap.tokenFrom === symbol || swap.tokenTo === symbol);
+        },
         isNotificationRelevant(swap: TokenSwapDto) {
-            // return !this.symbol || swap.tokenFrom === this.symbol || swap.tokenTo === this.symbol;
-            return true;
+            switch (this.SettingsStore.notificationMode) {
+            case "4":
+                return true;
+            case "3":
+                return this.isNotifyForChosenSymbol(swap);
+            case "2":
+                return this.isNotifyForActiveSymbol(swap);
+            case "1":
+            default:
+                return false;
+            }
         },
         processSwap(state: UnwrapRef<{ lastSwap: TokenSwapDto }>) {
             if (!this.showNotifications) {
@@ -68,7 +86,7 @@ export default {
                     }
                 }, {
                     id: toastId,
-                    position: "top-left",
+                    position: "top-left" as POSITION,
                     timeout: 5000,
                     closeOnClick: false,
                     pauseOnFocusLoss: true,
@@ -81,9 +99,12 @@ export default {
                     icon: false,
                     rtl: false
                 });
+                if (this.SettingsStore.notificationSounds === "1") {
+                    new Audio('swap.mp3').play();
+                }
                 // toast's progress works only when the tab is active.
                 // Clear old irrelevant notifications after 1 minute.
-                setTimeout(()=> {
+                setTimeout(() => {
                     const $el = document.getElementById(toastId);
                     if ($el && $el.offsetHeight) {
                         this.toast.dismiss(toastId);
@@ -93,7 +114,7 @@ export default {
         },
     },
     watch: {}
-}
+});
 </script>
 <style>
 

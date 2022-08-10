@@ -14,7 +14,9 @@ export default class Utils {
         if (!addr) {
             return "";
         }
-        return addr.substring(0, 13) + "..." + addr.substring(addr.length - 8);
+        const w = window.innerWidth;
+        const prefixLength =  w >= 440 ? 13 : (w >= 405 ? 11 : (w > 360 ? 4 : 2));
+        return addr.substring(0, prefixLength) + "..." + addr.substring(addr.length - 8);
     }
 
     static displayCurrency(amount: string | number): string {
@@ -32,4 +34,5 @@ export default class Utils {
     static strWithSign(amount: number): string {
         return amount > 0 ? "+" + this.str(amount) : this.str(amount);
     }
+
 }

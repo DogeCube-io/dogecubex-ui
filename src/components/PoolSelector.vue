@@ -1,6 +1,7 @@
 <template>
     <div class="dropdown bootstrap-select">
-        <v-select :options="pools" v-model="modelValue" :filter-by="poolFilterFunc"
+        <!-- eslint-disable-next-line vue/no-mutating-props -->
+        <v-select :options="pools" v-model="poolModel" :filter-by="poolFilterFunc"
                   :get-option-key="(p) => p.token.symbol" :get-option-label="(p) => p.token.symbol"
                   placeholder="Select your pool" class="pool-select" :clearable="false"
                   @option:selected="onPoolSelected">
@@ -27,22 +28,26 @@
 <script lang="ts">
 import type { PoolInfoDto } from "../../env";
 import API from "@/util/API";
+import { defineComponent} from "vue";
+import type { PropType } from "vue";
 
-export default {
+export default defineComponent({
     components: {},
     data() {
         return {
             pools: [] as PoolInfoDto[],
+            poolModel: null as (PoolInfoDto | null),
         }
     },
     props: {
-        modelValue: null as never as PoolInfoDto,
+        modelValue: Object as PropType<PoolInfoDto>,
         initialSelection: {
             type: String,
             required: true
         }
     },
     async mounted() {
+        this.poolModel = this.modelValue as PoolInfoDto;
         this.loadPoolInfo();
     },
     methods: {
@@ -57,7 +62,6 @@ export default {
             }
             this.pools = pools;
             this.onPoolSelected(selectedPool);
-            // this.$emit('update:modelValue', selectedPool);
         },
         poolFilterFunc(option: PoolInfoDto, label: string, search: string) {
             if (!search) {
@@ -67,12 +71,13 @@ export default {
             return (option.token.symbol).toLowerCase().indexOf(s) > -1 ||
                 (option.token.name).toLowerCase().indexOf(s) > -1;
         },
-        onPoolSelected(pool) {
+        onPoolSelected(pool?: PoolInfoDto) {
+            this.poolModel = pool as PoolInfoDto;
             this.$emit('update:modelValue', pool);
             this.$emit('onPoolSelected');
         },
     }
-}
+});
 </script>
 <style>
 

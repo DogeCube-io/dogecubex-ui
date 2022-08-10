@@ -43,7 +43,7 @@
                         <input type="range" v-model="messageLengthRange" class="form-range" min="1" max="3" step="1"
                                @input="onMessageLengthChange"
                                id="message-length-range"
-                               :style="{backgroundSize: (messageLengthRange - 1) * 100 / 2 + '% 100%'}">
+                               :style="{backgroundSize: (Number(messageLengthRange) - 1) * 100 / 2 + '% 100%'}">
                     </div>
                 </div>
             </slide-up-down>
@@ -74,23 +74,23 @@
             </div>
 
             <div class="row price-row text-start">
-                                <span @click="showDetailsClick" style="cursor:pointer;">
-                                    <span>
-                                        <icon-info />&nbsp;
-                                    </span>
-                                    <span id="f-price" @click="priceModeClick">{{ fPrice }}</span>
-                                </span>
+                <span @click="showDetailsClick" style="cursor:pointer;">
+                    <span>
+                        <icon-info />&nbsp;
+                    </span>
+                    <span id="f-price" @click="priceModeClick">{{ fPrice }}</span>
+                </span>
             </div>
             <slide-up-down v-model="expandDetails" :duration="800">
                 <div class="row price-row text-start">
-                                    <span>
-                                        <span>Price Impact</span>
-                                        <span class="float-end">{{ priceImpact }}</span>
-                                    </span>
                     <span>
-                                        <span>Minimum Received</span>
-                                        <span class="float-end">{{ minimumReceived }}</span>
-                                    </span>
+                        <span>Price Impact</span>
+                        <span class="float-end">{{ priceImpact }}</span>
+                    </span>
+                    <span>
+                        <span>Minimum Received</span>
+                        <span class="float-end">{{ minimumReceived }}</span>
+                    </span>
                 </div>
             </slide-up-down>
 
@@ -129,8 +129,10 @@ import IconInfo from "@/components/icons/IconInfo.vue";
 import { useAmmConfigStore } from "@/stores/AmmConfigStore";
 import API from "@/util/API";
 import Models from "@/util/Models";
+import { defineComponent } from "vue";
+import type { PropType } from "vue";
 
-export default {
+export default defineComponent({
     components: {IconInfo, IconChangeDirection, IconArrowDown, IconSliders, ButtonCopy},
     data() {
         return {
@@ -149,16 +151,16 @@ export default {
             // form + internal state
             swapModel: null as never as SwapModel,
 
-            amountFrom: null,
-            amountTo: null,
+            amountFrom: null as string | number | null | undefined,
+            amountTo: null as string | number | null | undefined,
             isInputBySource: true, // whether to use input-from or input-to as basis for getting a quote
-            inputFromValid: null,
-            inputToValid: null,
+            inputFromValid: null as null | boolean,
+            inputToValid: null as null | boolean,
             hideMessageRow: true,
 
 
-            error: "",
-            warning: "",
+            error: "" as string | null,
+            warning: "" as string | null,
 
             // result of quote calc in onChange()
             fPrice: "",
@@ -172,13 +174,16 @@ export default {
             REQ_ID: 0,
 
             lastOnChange: 0,
-            focusListener: null,
-            statusInterval: null,
+            focusListener: null as (() => void) | null,
+            statusInterval: null as ReturnType<typeof setInterval> | null,
         }
     },
     emits: ['onUpdateModel'],
     props: {
-        params: null as never as SwapModel,
+        params: {
+            type: Object as PropType<SwapModel>,
+            required: true,
+        },
         symbol: {
             type: String,
             required: true,
@@ -213,28 +218,28 @@ export default {
     methods: {
 
         onSlippageChange(evt: Event) {
-            window.localStorage['maxSlippage'] = evt.target.value;
+            window.localStorage['maxSlippage'] = (evt.target as HTMLInputElement).value;
             this.onChange(false);
         },
         onMessageLengthChange(evt: Event) {
-            window.localStorage['messageLength'] = '' + evt.target.value;
+            window.localStorage['messageLength'] = '' + (evt.target as HTMLInputElement).value;
             this.onChange(false);
         },
         onInputChange(evt: Event) {
-            this.onChange(false, evt.target.id);
+            this.onChange(false, (evt.target as Element).id);
         },
-        priceModeClick(evt) {
+        priceModeClick(evt: Event) {
             this.priceInXRD = !this.priceInXRD;
             this.onChange(false);
             return false;
         },
-        showDetailsClick(evt) {
-            if (evt.target.id === "f-price") {
+        showDetailsClick(evt: Event) {
+            if ((evt.target as Element).id === "f-price") {
                 return;
             }
             this.expandDetails = !this.expandDetails;
         },
-        updateSymbol(symbol) {
+        updateSymbol(symbol: string) {
             if (this.swapModel.to) {
                 this.changeModel({
                     to: symbol,
@@ -250,12 +255,12 @@ export default {
         changeDirection() {
             if (this.swapModel.to) {
                 this.changeModel({
-                    to: null,
+                    to: undefined,
                     from: this.swapModel.to,
                 });
             } else if (this.swapModel.from) {
                 this.changeModel({
-                    from: null,
+                    from: undefined,
                     to: this.swapModel.from,
                 });
             }
@@ -271,7 +276,7 @@ export default {
             }
         },
 
-        showErrorMessage(error: string) {
+        showErrorMessage(error: string | null) {
             if (this.isInputBySource) {
                 this.amountTo = null;
             } else {
@@ -321,18 +326,18 @@ export default {
 
             let amountFrom = null;
             let amountTo = null;
-            let from = this.tokenFrom;
-            let to = this.tokenTo;
+            const from = this.tokenFrom;
+            const to = this.tokenTo;
             if (this.isInputBySource) {
                 amountFrom = this.amountFrom;
-                if (!this.amountFrom || this.amountFrom <= 0) {
+                if (!this.amountFrom || Number(this.amountFrom) <= 0) {
                     this.hideMessageRow = true;
                     return;
                 }
                 this.inputToValid = null;
             } else {
                 amountTo = this.amountTo;
-                if (!this.amountTo || this.amountTo <= 0) {
+                if (!this.amountTo || Number(this.amountTo) <= 0) {
                     this.hideMessageRow = true;
                     return;
                 }
@@ -346,13 +351,12 @@ export default {
 
             try {
                 const response = await API.postRaw("/api/swap/quote.json", {
-                        from: from,
-                        to: to,
-                        amountFrom: amountFrom,
-                        amountTo: amountTo,
-                        maxSlippage: this.maxSlippage
-                    }
-                );
+                    from: from,
+                    to: to,
+                    amountFrom: amountFrom,
+                    amountTo: amountTo,
+                    maxSlippage: this.maxSlippage
+                });
                 if (this.REQ_ID !== rand) {
                     return;
                 }
@@ -366,15 +370,15 @@ export default {
                     return;
                 }
 
-                let receivedAmount = this.isInputBySource ? resp.receivedAmount : amountTo;
-                let minAmount = this.isInputBySource ? resp.minAmount : amountTo;
-                let minFromAmount = this.isInputBySource ? amountFrom : resp.minAmount;
-                let amountToSend = this.isInputBySource ? amountFrom : resp.sentAmount;
+                const receivedAmount = Number(this.isInputBySource ? resp.receivedAmount : amountTo);
+                const minAmount = Number(this.isInputBySource ? resp.minAmount : amountTo);
+                const minFromAmount = Number(this.isInputBySource ? amountFrom : resp.minAmount);
+                const amountToSend = Number(this.isInputBySource ? amountFrom : resp.sentAmount);
 
-                let xrdValue = to === 'XRD' ? receivedAmount : minFromAmount;
-                let price = to === 'XRD' ? receivedAmount / minFromAmount : minFromAmount / receivedAmount;
-                let mainToken = to === 'XRD' ? to : from;
-                let otherToken = to === 'XRD' ? from : to;
+                const xrdValue = to === 'XRD' ? receivedAmount : minFromAmount;
+                const price = to === 'XRD' ? receivedAmount / minFromAmount : minFromAmount / receivedAmount;
+                const mainToken = to === 'XRD' ? to : from;
+                const otherToken = to === 'XRD' ? from : to;
 
                 let inputError = null;
                 if (xrdValue < this.config.minOrderSize) {
@@ -408,7 +412,7 @@ export default {
                         this.warning = null;
                     }
 
-                    let msgLength = Number(this.messageLengthRange);
+                    const msgLength = Number(this.messageLengthRange);
 
                     let sign = this.isInputBySource ? '>' : '=';
                     if (msgLength === 3) {
@@ -416,8 +420,8 @@ export default {
                     } else if (msgLength === 2) {
                         sign = sign + ' ';
                     }
-                    let prefix = msgLength === 3 ? 'Swap for ' : (msgLength === 2 ? 'For ' : '');
-                    let suffix = msgLength === 3 ? ` ${to}` : (msgLength === 2 ? ` ${to}` : '');
+                    const prefix = msgLength === 3 ? 'Swap for ' : (msgLength === 2 ? 'For ' : '');
+                    const suffix = msgLength === 3 ? ` ${to}` : (msgLength === 2 ? ` ${to}` : '');
 
                     this.walletMessage = `${prefix}${sign}${minAmount}${suffix}`;
                 }
@@ -425,17 +429,17 @@ export default {
                 if (xrdValue < 0) {
                     this.fPrice = "N/A";
                 } else if (this.priceInXRD) {
-                    let p = Number(price.toPrecision(6)).toFixed(12).replace(/\.?0+$/, "");
+                    const p = Number(price.toPrecision(6)).toFixed(12).replace(/\.?0+$/, "");
                     this.fPrice = `1 ${otherToken} = ${p} ${mainToken}`;
                 } else {
-                    let p = Number((1 / price).toPrecision(6)).toFixed(12).replace(/\.?0+$/, "");
+                    const p = Number((1 / price).toPrecision(6)).toFixed(12).replace(/\.?0+$/, "");
                     this.fPrice = `1 ${mainToken} = ${p} ${otherToken}`;
                 }
 
-                let priceImpact = xrdValue >= 0 ? resp.priceImpact : 0;
+                const priceImpact = xrdValue >= 0 ? resp.priceImpact : 0;
                 this.priceImpact = `${priceImpact} %`;
 
-                let minReceivedVal = minAmount > 0 ? minAmount : 0;
+                const minReceivedVal = minAmount > 0 ? minAmount : 0;
                 this.minimumReceived = `${minReceivedVal} ${to}`;
 
                 if (xrdValue < 0) {
@@ -467,13 +471,14 @@ export default {
 
         },
         changeModel(upd: Partial<SwapModel>) {
-            let swapModel = Models.swapModel(this.swapModel);
-            for (const prop in upd) {
-                const val = upd[prop] as string;
+            const swapModel = Models.swapModel(this.swapModel);
+            const rec = upd as Record<string, string>;
+            for (const prop in rec) {
+                const val = rec[prop] as string;
                 if (val) {
-                    swapModel[prop] = val;
+                    (swapModel as Record<string, string>)[prop] = val;
                 } else {
-                    delete swapModel[prop];
+                    delete (swapModel as Record<string, string>)[prop];
                 }
             }
             this.swapModel = swapModel;
@@ -511,12 +516,12 @@ export default {
                     if (this.mode === 'BUY') {
                         this.changeModel({
                             xrd: newVal,
-                            amount: null,
+                            amount: undefined,
                         });
                     } else {
                         this.changeModel({
                             amount: newVal,
-                            xrd: null,
+                            xrd: undefined,
                         });
                     }
                 }
@@ -530,12 +535,12 @@ export default {
                     if (this.mode === 'SELL') {
                         this.changeModel({
                             xrd: newVal,
-                            amount: null,
+                            amount: undefined,
                         });
                     } else {
                         this.changeModel({
                             amount: newVal,
-                            xrd: null,
+                            xrd: undefined,
                         });
                     }
                 }
@@ -552,7 +557,7 @@ export default {
             this.updateSymbol(newVal);
         },
     },
-}
+});
 </script>
 
 <style>

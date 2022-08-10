@@ -16,19 +16,19 @@
 </template>
 
 <script lang="ts">
-import type { AnalyticsSummaryDto } from "../../env";
+import type { AnalyticsSummaryDto, TokenSwapDto } from "../../env";
 import API from "@/util/API";
-import { UnwrapRef } from "vue";
-import { TokenSwapDto } from "../../env";
+import type { UnwrapRef } from "vue";
+import { defineComponent } from "vue";
 import { useSwapEventStore } from "@/stores/SwapEventStore";
 
-export default {
+export default defineComponent({
     components: {},
     data() {
         return {
             data: {} as AnalyticsSummaryDto,
 
-            statusInterval: null,
+            statusInterval: null as ReturnType<typeof setInterval> | null,
         }
     },
     async mounted() {
@@ -58,7 +58,7 @@ export default {
         },
     }
 
-}
+});
 </script>
 
 <style>

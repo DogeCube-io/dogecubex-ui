@@ -112,6 +112,10 @@ header.site-header nav {
     display: none;
 }
 
+input[type=range] {
+    touch-action: none;
+}
+
 /* Toastify overrides */
 .Vue-Toastification__container .Vue-Toastification__toast--info {
     border-radius: 6px;

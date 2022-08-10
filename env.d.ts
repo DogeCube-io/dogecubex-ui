@@ -16,22 +16,26 @@ declare type RouteRecordWithTitle = {
 
 // Models
 declare type SwapModel = {
-    from: string | null,
-    to: string | null,
-    amount: string | null,
-    xrd: string | null,
+    from?: string,
+    to?: string,
+    amount?: string,
+    xrd?: string,
+}
+
+declare type TokenInfoModel = {
+    symbol?: string,
 }
 
 
 
 /* DTO types */
 declare type AmmConfigDto = {
-    minOrderSize: string;
-    maxOrderSize: string;
-    stakerMaxOrderSize: string;
-    swapTransferFeeXrd: string;
-    swapRefundFeeXrd: string;
-    exchangeFee: string;
+    minOrderSize: number;
+    maxOrderSize: number;
+    stakerMaxOrderSize: number;
+    swapTransferFeeXrd: number;
+    swapRefundFeeXrd: number;
+    exchangeFee: number;
 }
 
 declare type TokenDto = {

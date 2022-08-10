@@ -135,6 +135,7 @@ const router = createRouter({
 
 function isEmpty(object: Record<string, unknown>): boolean {
     for (const p in object) {
+        // eslint-disable-next-line no-prototype-builtins
         if (object.hasOwnProperty(p)) {
             return false;
         }
