@@ -166,11 +166,12 @@ header.site-header nav {
 }
 
 .doge-logo img {
-    zoom: 0.5;
+    width: 220px;
 }
 
 .page-chart .doge-logo img {
-    zoom: 0.4;
+    width: 176px;
+
 }
 
 .my-5 {
@@ -184,11 +185,11 @@ header.site-header nav {
     }
 
     .doge-logo img {
-        zoom: 0.25;
+        width: 110px;
     }
 
     .page-chart .doge-logo img {
-        zoom: 0.25;
+        width: 110px;
     }
 
     .site-header .container-xxl .separator {
