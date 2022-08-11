@@ -1,8 +1,7 @@
 <template>
     <div class="dropdown bootstrap-select">
-        <!-- eslint-disable-next-line vue/no-mutating-props -->
         <v-select :options="pools" v-model="poolModel" :filter-by="poolFilterFunc"
-                  :get-option-key="(p) => p.token.symbol" :get-option-label="(p) => p.token.symbol"
+                  :get-option-key="getPoolSymbol" :get-option-label="getPoolSymbol"
                   :placeholder="simpleView ? 'Switch Token' : 'Select your pool'" class="pool-select" :clearable="false"
                   @option:selected="onPoolSelected">
             <template v-slot:option="pool">
@@ -29,7 +28,7 @@
 </template>
 
 <script lang="ts">
-import type { PoolInfoDto } from "../../env";
+import { PoolInfoDto } from "../../env";
 import API from "@/util/API";
 import { defineComponent} from "vue";
 import type { PropType } from "vue";
@@ -55,6 +54,9 @@ export default defineComponent({
         this.loadPoolInfo();
     },
     methods: {
+        getPoolSymbol(p: PoolInfoDto) {
+            return p.token.symbol;
+        },
         async loadPoolInfo() {
             const pools = await API.get("/api/pools-info.json") as PoolInfoDto[];
             let selectedPool;

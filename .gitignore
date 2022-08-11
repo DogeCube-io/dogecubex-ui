@@ -1,7 +1,11 @@
 # Proprietary Trading View files
-public/charting_library
-lib/charting_library
-lib/datafeeds
+public/charting_library/*
+lib/charting_library/*
+lib/datafeeds/*
+
+!public/charting_library/.empty
+!lib/charting_library/.empty
+!lib/datafeeds/.empty
 
 # Logs
 logs
