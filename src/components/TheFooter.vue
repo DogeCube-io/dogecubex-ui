@@ -19,6 +19,11 @@
                             <icon-instagram />
                         </a>
                     </li>
+                    <li class="ms-3">
+                        <a class="link-dark" target="_blank" href="https://github.com/DogeCube-io">
+                            <icon-github />
+                        </a>
+                    </li>
                 </ul>
                 <span class="ms-4"> Support: </span>
                 <ul class="list-unstyled d-flex">
@@ -40,10 +45,11 @@ import IconTwitter from "@/components/icons/socials/IconTwitter.vue";
 import IconInstagram from "@/components/icons/socials/IconInstagram.vue";
 import { useRoute } from "vue-router";
 import { defineComponent } from "vue";
+import IconGithub from "@/components/icons/socials/IconGithub.vue";
 
 export default defineComponent({
     name: "TheFooter",
-    components: {IconInstagram, IconTwitter, IconTelegram},
+    components: {IconGithub, IconInstagram, IconTwitter, IconTelegram},
     computed: {
         showSocials() {
             const route = useRoute();

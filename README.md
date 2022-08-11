@@ -33,6 +33,8 @@ See [Vite Configuration Reference](https://vitejs.dev/config/).
 
 ## Project Setup
 
+Built with Node v18.4.0, npm v8.12.1.
+
 ```sh
 npm install
 ```
