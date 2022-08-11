@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { useLocalStorage } from "@vueuse/core";
+import type { UnwrapRef } from "vue-demi";
 
 export const useSettingsStore = defineStore({
     id: "d3x.Settings",
@@ -7,6 +8,8 @@ export const useSettingsStore = defineStore({
         notificationMode: useLocalStorage("d3x.Settings.notificationMode", "4"),
         chosenSymbols: useLocalStorage("d3x.Settings.chosenSymbols", ""),
         notificationSounds: useLocalStorage("d3x.Settings.notificationSounds", "0"),
+
+        compactChart: useLocalStorage("d3x.Settings.compactChart", "0"),
     }),
     actions: {
         setNotificationMode(mode: string) {
@@ -31,6 +34,16 @@ export const useSettingsStore = defineStore({
         setNotificationSounds(enabled: boolean | null) {
             this.$patch({
                 notificationSounds: enabled ? "1" : "0",
+            });
+        },
+        setCompactChart(enabled: boolean | null) {
+            this.$patch({
+                compactChart: enabled ? "1" : "0",
+            });
+        },
+        subscribeCompactChart(callback: (state: UnwrapRef<{ compactChart: string }>) => void) {
+            this.$subscribe((mutation, state) => {
+                callback(state);
             });
         },
     },

@@ -24,10 +24,23 @@
                             </span>
                         </h5>
                         <p class="d3x-text-gray mt-3 align-middle">{{ data.description }}</p>
+                        <p class="d-sm-none fs-4 ms-2" style="display: inline;  vertical-align: super;">
+                            <span class="ms-2">
+                                <a class="link-dark" target="_blank" :href="data.tokenInfoUrl"><icon-home /></a>
+                            </span>
+                            <span class="ms-3">
+                                <a class="link-dark " target="_blank"
+                                   :href="`https://explorer.radixdlt.com//#/tokens/${data.analytics.token.rri}`"><icon-external-link /></a>
+                            </span>
+                        </p>
                     </div>
                     <div class="text-center my-3 col-lg-4">
-                        <h5 class="ms-2 float-end" style="display: inline;  vertical-align: super;">
-                            <span class="row  mb-1">
+                        <span id="pool-select-parent" class="col-12">
+                            <pool-selector v-model="selectedPool" :simple-view="true"
+                                           :initial-selection="symbol" @onPoolSelected="poolChanged" />
+                        </span>
+                        <h5 class="d-none d-sm-block ms-2 float-end" style="display: inline;  vertical-align: super;">
+                            <span class="row mb-1">
                                 <a class="float-end link-dark" target="_blank" :href="data.tokenInfoUrl"><icon-home /></a>
                             </span>
                             <span class="row mb-1">
@@ -92,7 +105,7 @@
                     </div>
                 </div>
                 <div v-if="symbol && symbol !== 'XRD'" class="row text-center shadow-sm py-2 mx-auto">
-                    <div class="text-center my-3 col-xl-8">
+                    <div class="text-center tv-chart-parent my-3 col-xl-8">
                         <TVChartContainer :symbol="symbol" />
                     </div>
                     <div class="text-center col-xl-4" style="">
@@ -126,8 +139,6 @@
                     </div>
                     <analytics-swaps :symbol="symbol" />
                 </div>
-
-
             </div>
         </div>
     </main>
@@ -139,11 +150,19 @@
     height: calc(100vh - 240px);
 }
 
-.bell-icon-off {
-    background-color: transparent;
+@media (max-width: 575px) {
+    .tv-chart-parent {
+        padding-right: 0;
+        padding-left: 0;
+    }
 }
+
+.bell-icon-off,
 .bell-icon-on {
     background-color: transparent;
+    border: none;
+}
+.bell-icon-on {
     color: darkgreen;
 }
 .bell-icon-on:hover {
@@ -173,9 +192,12 @@ import type { TokenSwapDto } from "../../env";
 import IconBellOff from "@/components/icons/IconBellOff.vue";
 import { useSettingsStore } from "@/stores/SettingsStore";
 import IconBellOn from "@/components/icons/IconBellOn.vue";
+import type { PoolInfoDto } from "../../env";
+import PoolSelector from "@/components/PoolSelector.vue";
 
 export default  defineComponent({
     components: {
+        PoolSelector,
         IconBellOn,
         IconBellOff,
         ButtonCopy,
@@ -188,6 +210,8 @@ export default  defineComponent({
             symbol: "",
             data: {} as TokenDetailsDto,
             notificationsEnabled: false,
+
+            selectedPool: null as never as PoolInfoDto,
 
             swapModel: null as never as SwapModel,
 
@@ -247,6 +271,10 @@ export default  defineComponent({
             } else {
                 this.SettingsStore.removeChosenSymbol(this.symbol);
             }
+        },
+        poolChanged() {
+            this.symbol = this.selectedPool.token.symbol;
+            this.initState(this.symbol);
         },
         getQueryParams(): TokenInfoModel {
             const qp: TokenInfoModel = {};

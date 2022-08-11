@@ -3,7 +3,7 @@
         <!-- eslint-disable-next-line vue/no-mutating-props -->
         <v-select :options="pools" v-model="poolModel" :filter-by="poolFilterFunc"
                   :get-option-key="(p) => p.token.symbol" :get-option-label="(p) => p.token.symbol"
-                  placeholder="Select your pool" class="pool-select" :clearable="false"
+                  :placeholder="simpleView ? 'Switch Token' : 'Select your pool'" class="pool-select" :clearable="false"
                   @option:selected="onPoolSelected">
             <template v-slot:option="pool">
                 <span class="badge badge-success">
@@ -14,11 +14,14 @@
                 </span>
             </template>
             <template v-slot:selected-option="pool">
-                <span class="badge badge-success">
+                <span v-if="!simpleView" class="badge badge-success">
                     <img v-if="pool.heroImageUrl" style="width:32px;height:32px;"
                          :src="pool.token.iconUrl" :alt="pool.token.name">
                     <span class="ms-2">{{ pool.token.symbol + '/XRD' }}</span><small
                     class="text-white ms-2">{{ pool.token.name }}</small>
+                </span>
+                <span  v-else class="badge badge-success">
+                    <span class="text-center"><small>Switch Token</small></span>
                 </span>
             </template>
         </v-select>
@@ -41,6 +44,7 @@ export default defineComponent({
     },
     props: {
         modelValue: Object as PropType<PoolInfoDto>,
+        simpleView: Boolean,
         initialSelection: {
             type: String,
             required: true
@@ -116,6 +120,13 @@ export default defineComponent({
 
 .pool-select.vs--searchable .vs__dropdown-toggle .vs__search {
     line-height: 2.5;
+}
+
+.pool-select.vs--searchable .vs__dropdown-toggle[aria-expanded="false"] .vs__search {
+    height: 0;
+}
+.pool-select.vs--searchable .vs__dropdown-toggle[aria-expanded="true"] .vs__selected {
+    visibility: hidden;
 }
 
 .pool-select.vs--searchable:not(.vs--open) .vs__dropdown-toggle .vs__search {

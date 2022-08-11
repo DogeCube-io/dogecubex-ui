@@ -31,9 +31,7 @@
                     </span>
                     </div>
                 </div>
-
             </div>
-
         </div>
         <div class="row">
             <div class="col-8 text-start" @click="false">
@@ -44,7 +42,17 @@
                     <input v-model="notificationSounds" class="form-check-input" type="checkbox" role="switch"
                            :disabled="notificationMode === '1'"
                            @input="onNotificationSoundsChange" id="notification-sounds">
-                    <label class="form-check-label" for="notification-sounds"> </label>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-8 text-start" @click="false">
+                <label for="compact-chart" class="form-label">Compact chart: </label>
+            </div>
+            <div class="col-4">
+                <div class="form-check form-switch">
+                    <input v-model="compactChart" class="form-check-input" type="checkbox" role="switch"
+                           @input="onCompactChartChange" id="compact-chart">
                 </div>
             </div>
         </div>
@@ -64,6 +72,7 @@ export default defineComponent({
         return {
             notificationMode: "4",
             notificationSounds: false,
+            compactChart: false,
             notificationModesMap: {
                 "1": "OFF",
                 "2": "Relevant",
@@ -86,6 +95,7 @@ export default defineComponent({
     mounted() {
         this.notificationMode = this.SettingsStore.notificationMode;
         this.notificationSounds = this.SettingsStore.notificationSounds === "1";
+        this.compactChart = this.SettingsStore.compactChart === "1";
         setTimeout(() => {
             this.initTooltips();
         });
@@ -114,6 +124,11 @@ export default defineComponent({
                 const audio = new Audio("swap.mp3");
                 audio.play();
             }
+        },
+        onCompactChartChange(evt: Event) {
+            const target = evt.target as HTMLInputElement;
+            const checked = target.checked;
+            this.SettingsStore.setCompactChart(checked);
         },
         initTooltips() {
             for (const tip of this.tooltips) {
