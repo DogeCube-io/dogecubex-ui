@@ -161,7 +161,7 @@ export default defineComponent({
             this.tvDataFeed = dataFeed;
             this.compact = compact;
 
-            function initChart() {
+            function initChartIndicators() {
                 tvWidget.activeChart().createStudy(
                     'Volume',
                     true,
@@ -203,7 +203,7 @@ export default defineComponent({
             }
 
             tvWidget.onChartReady(() => {
-                initChart();
+                initChartIndicators();
                 tvWidget.activeChart().onSymbolChanged().subscribe(null, () => {
                     const tvSymbol = tvWidget.activeChart().symbol();
                     const parts = tvSymbol.split(":");
@@ -244,11 +244,6 @@ export default defineComponent({
             }
             if (this.compact !== (state.compactChart === "1")) {
                 this.initChart(!this.compact);
-            }
-            const swap: TokenSwapDto = state.lastSwap;
-            const symbol = swap.tokenTo !== "XRD" ? swap.tokenTo : swap.tokenFrom;
-            if (symbol === this.symbol) {
-                this.focusListener();
             }
         },
 
