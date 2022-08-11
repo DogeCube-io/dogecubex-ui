@@ -2,6 +2,14 @@
 
 The UI of the DogeCubeX application (https://dogecubex.live)
 
+## TradingView dependency
+
+We use a proprietary charting library from Trading View that we are not allowed to publish.
+You can [request a licence](https://www.tradingview.com/HTML5-stock-forex-bitcoin-charting-library/?feature=technical-analysis-charts)
+or just remove the charts component from the project.  
+If you do have a licence and access to the [repository](https://github.com/tradingview/charting_library) - you need to 
+copy the files from that repository to `public/charting_library`, `lib/charting_library` (yes, twice) and `lib/datafeeds` to make the build pass.
+
 
 
 ## Recommended IDE Setup
