@@ -240,6 +240,9 @@ export default defineComponent({
                 return "";
             }
             const heroImg = this.selectedPool.heroImageUrl;
+            if (!heroImg) {
+                return "";
+            }
             return heroImg.startsWith("http") ? heroImg : "https://dogecubex.b-cdn.net" + heroImg;
         },
         util() {

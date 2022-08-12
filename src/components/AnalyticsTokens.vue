@@ -25,7 +25,7 @@
             <td class="text-start">
                 <RouterLink class="link-dark d3x-no-underline"
                             :to="{ path: '/info', query: {symbol: token.token.symbol} }">
-                    <img style="width:24px;height:24px;" :alt="token.token.symbol" :src="token.token.iconUrl">
+                    <img class="me-1" style="width:24px;height:24px;" :alt="token.token.symbol" :src="token.token.iconUrl">
                     <span>{{ token.token.name }}</span>
                 </RouterLink>
             </td>

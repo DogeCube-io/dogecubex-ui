@@ -8,7 +8,7 @@
                 <span class="badge badge-success">
                     <img v-if="pool.heroImageUrl" style="width:32px;height:32px;"
                          :src="pool.token.iconUrl" :alt="pool.token.name">
-                    <span class="ms-2">{{ pool.token.symbol + '/XRD' }}</span><small
+                    <span class="ms-2">{{ getPoolPair(pool) }}</span><small
                     class="text-white ms-2">{{ pool.token.name }}</small>
                 </span>
             </template>
@@ -16,10 +16,10 @@
                 <span v-if="!simpleView" class="badge badge-success">
                     <img v-if="pool.heroImageUrl" style="width:32px;height:32px;"
                          :src="pool.token.iconUrl" :alt="pool.token.name">
-                    <span class="ms-2">{{ pool.token.symbol + '/XRD' }}</span><small
+                    <span class="ms-2">{{ getPoolPair(pool) }}</span><small
                     class="text-white ms-2">{{ pool.token.name }}</small>
                 </span>
-                <span  v-else class="badge badge-success">
+                <span v-else class="badge badge-success">
                     <span class="text-center"><small>Switch Token</small></span>
                 </span>
             </template>
@@ -28,10 +28,10 @@
 </template>
 
 <script lang="ts">
-import { PoolInfoDto } from "../../env";
+import type { PoolInfoDto } from "../../env";
 import API from "@/util/API";
-import { defineComponent} from "vue";
 import type { PropType } from "vue";
+import { defineComponent } from "vue";
 
 export default defineComponent({
     components: {},
@@ -44,6 +44,7 @@ export default defineComponent({
     props: {
         modelValue: Object as PropType<PoolInfoDto>,
         simpleView: Boolean,
+        showXrd: Boolean,
         initialSelection: {
             type: String,
             required: true
@@ -57,8 +58,23 @@ export default defineComponent({
         getPoolSymbol(p: PoolInfoDto) {
             return p.token.symbol;
         },
+        getPoolPair(p: PoolInfoDto) {
+            return !this.showXrd ? p.token.symbol + "/XRD" : p.token.symbol;
+        },
         async loadPoolInfo() {
             const pools = await API.get("/api/pools-info.json") as PoolInfoDto[];
+            if (this.showXrd && pools.length) {
+                pools.unshift({
+                    token: {
+                        symbol: "XRD",
+                        name: "Radix",
+                        rri: "xrd_rr1qy5wfsfh",
+                        iconUrl: "https://assets.radixdlt.com/icons/icon-xrd-32x32.png",
+                    },
+                    account: "",
+                    heroImageUrl: "/hero-swap-DGC.png",
+                });
+            }
             let selectedPool;
             for (let i = 0; i < pools.length; i++) {
                 const pool = pools[i];

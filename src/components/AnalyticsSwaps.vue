@@ -12,6 +12,11 @@
         <tbody>
         <tr v-for="swap in data" v-bind:key="`${swap.tokenFrom}-${swap.tokenTo}-${swap.dateAdded}`">
             <td class="text-start">
+                <span v-if="!isSingleSymbol" class="me-1">
+                    <RouterLink class="link-dark" :to="{ path: '/info', query:
+                            {symbol:  swap.tokenFrom !== 'XRD' ? swap.tokenFrom : swap.tokenTo} }"> <icon-details/>
+                    </RouterLink>
+                </span>
                 Swap
                 <a target="_blank"
                    :href="'https://explorer.radixdlt.com/#/transactions/' + swap.txIn">{{ swap.tokenFrom }}</a>
@@ -39,9 +44,10 @@ import API from "@/util/API";
 import { useSwapEventStore } from "@/stores/SwapEventStore";
 import type { UnwrapRef } from "vue";
 import { defineComponent } from "vue";
+import IconDetails from "@/components/icons/IconDetails.vue";
 
 export default defineComponent({
-    components: {},
+    components: {IconDetails},
     props: {
         symbol: {
             type: String,
@@ -71,7 +77,7 @@ export default defineComponent({
     },
     methods: {
         async loadData() {
-            const url = `/api/analytics/swaps.json` + (this.symbol && this.symbol !== "XRD" ? "?symbol=" + this.symbol : "");
+            const url = `/api/analytics/swaps.json` + (this.isSingleSymbol ? "?symbol=" + this.symbol : "");
             const promise = API.get(url);
             this.dataLoaded = true;
             this.data = await promise as TokenSwapDto[] || [];
@@ -92,6 +98,9 @@ export default defineComponent({
     computed: {
         SwapEventStore() {
             return useSwapEventStore();
+        },
+        isSingleSymbol() {
+            return this.symbol && this.symbol !== "XRD";
         },
     },
     watch: {

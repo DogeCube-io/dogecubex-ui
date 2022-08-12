@@ -26,14 +26,14 @@ export const useActiveStateStore = defineStore({
     actions: {
         setState(symbol: string, mode: string) {
             this.$patch({
-                lastSymbol: symbol || this.lastSymbol,
+                lastSymbol: symbol && symbol !== "XRD" ? symbol : this.lastSymbol,
                 activeSymbol: symbol || "",
                 mode: mode || "",
             });
         },
         setSymbol(symbol: string) {
             this.$patch({
-                lastSymbol: symbol || this.lastSymbol,
+                lastSymbol: symbol && symbol !== "XRD" ? symbol : this.lastSymbol,
                 activeSymbol: symbol || "",
             });
         },

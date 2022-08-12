@@ -14,7 +14,7 @@
                         </h4>
                         <h5 class="d3x-text-gray ms-2" style="display: inline;  vertical-align: super;">
                             ({{ data.symbol }})
-                            <span v-if="SettingsStore.notificationMode === '3'">
+                            <span v-if="symbol && symbol !== 'XRD' && SettingsStore.notificationMode === '3'">
                                 <button v-if="!notificationsEnabled" class="bell-icon-off link-dark" @click="onNotificationClick(true)" type="button">
                                     <icon-bell-off />
                                 </button>
