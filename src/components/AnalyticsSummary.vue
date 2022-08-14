@@ -68,10 +68,10 @@ export default defineComponent({
             return useSettingsStore();
         },
         currency() {
-            return this.SettingsStore.analyticsCurrency;
-        }
-    }
-
+            return (this as any).SettingsStore.analyticsCurrency;
+        },
+    },
+    watch: {},
 });
 </script>
 
