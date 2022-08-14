@@ -34,9 +34,11 @@ export default defineComponent({
             tvWidget: null as null | IChartingLibraryWidget,
             tvSaveLoadAdapter: null as null | TVSaveLoadAdapter,
             tvDataFeed: null as null | UDFCompatibleDatafeed,
+            tvCurrencyBtn: null as null | HTMLElement,
             focusListener: null as null | (() => void),
 
             compact: false,
+            currency: "XRD",
 
             get interval() {
                 return localStorage.getItem("tradingview.chart.lastUsedTimeBasedResolution") || "1D";
@@ -47,10 +49,11 @@ export default defineComponent({
         };
     },
     mounted() {
+        this.currency = this.SettingsStore.chartCurrency || "XRD";
         this.initChart(this.SettingsStore.compactChart === "1");
 
         this.SwapEventStore.subscribe(this.onNewSwap);
-        this.SettingsStore.subscribeCompactChart(this.onCompactChange);
+        this.SettingsStore.subscribeChartChange(this.onChartSettingsChange);
 
         this.focusListener = () => {
             (this.tvDataFeed as any)._dataPulseProvider._updateData();
@@ -66,6 +69,8 @@ export default defineComponent({
             window.removeEventListener('focus', this.focusListener);
             this.focusListener = null;
         }
+        this.tvDataFeed = null;
+        this.tvCurrencyBtn = null;
     },
     methods: {
         initChart(compact: boolean) {
@@ -84,10 +89,11 @@ export default defineComponent({
             }
 
             const container = this.$refs.chartContainer;
-            const tvSaveLoadAdapter = new TVSaveLoadAdapter(this.symbol);
+            const tvSymbol = this.symbol !== "XRD" ? this.symbol + ":" + this.currency : "XRD:USD";
+            const tvSaveLoadAdapter = new TVSaveLoadAdapter(tvSymbol);
             const dataFeed = new UDFCompatibleDatafeed(API.baseUrl + "/api/charts", 30000);
             const widgetOptions = {
-                symbol: this.symbol,
+                symbol: tvSymbol,
                 // BEWARE: no trailing slash is expected in feed URL
                 datafeed: dataFeed,
                 interval: this.interval as ResolutionString,
@@ -123,6 +129,7 @@ export default defineComponent({
                 overrides: {
                     "scalesProperties.showStudyLastValue": false
                 },
+                custom_css_url: "/css/tv-overrides.css?_v=1",
                 theme: "Dark",
             } as ChartingLibraryWidgetOptions;
 
@@ -156,10 +163,10 @@ export default defineComponent({
 
             const tvWidget = new widget(widgetOptions);
 
+            this.compact = compact;
             this.tvWidget = tvWidget;
             this.tvSaveLoadAdapter = tvSaveLoadAdapter;
             this.tvDataFeed = dataFeed;
-            this.compact = compact;
 
             function initChartIndicators() {
                 tvWidget.activeChart().createStudy(
@@ -205,27 +212,19 @@ export default defineComponent({
             tvWidget.onChartReady(() => {
                 initChartIndicators();
                 tvWidget.activeChart().onSymbolChanged().subscribe(null, () => {
-                    const tvSymbol = tvWidget.activeChart().symbol();
-                    const parts = tvSymbol.split(":");
-                    const symbol = parts[parts.length - 1];
-                    tvSaveLoadAdapter.currentSymbol = symbol;
+                    tvSaveLoadAdapter.currentSymbol = tvWidget.activeChart().symbol();
                 });
-                // tvWidget.headerReady().then(() => {
-                //     const button = tvWidget.createButton();
-                //     button.setAttribute('title', 'Reset chart indicators to default state');
-                //     button.classList.add('apply-common-tooltip');
-                //     button.addEventListener('click', () => tvWidget.showConfirmDialog({
-                //         title: 'Chart Reset',
-                //         body: 'The current chart will reset and reload with default indicators. Saved charts will not be removed.',
-                //         callback: (confirmed) => {
-                //             if (confirmed) {
-                //                 resetChart();
-                //                 window.location.reload();
-                //             }
-                //         },
-                //     }));
-                //     button.innerHTML = 'Reset';
-                // });
+                tvWidget.headerReady().then(() => {
+                    const button = tvWidget.createButton();
+                    button.addEventListener('click', (evt) => {
+                        if (this.symbol !== "XRD" && evt.target && (evt.target as HTMLElement).classList.contains("js-click")) {
+                            this.SettingsStore.setChartCurrency(this.otherCurrency);
+                        }
+                    });
+                    this.tvCurrencyBtn = button;
+                    this.updateTvCurrencyBtn();
+                });
+
             });
         },
         onNewSwap(state: UnwrapRef<{ lastSwap: TokenSwapDto }>) {
@@ -238,13 +237,47 @@ export default defineComponent({
                 this.focusListener();
             }
         },
-        onCompactChange(state: UnwrapRef<{ compactChart: string }>) {
+        onChartSettingsChange(state: UnwrapRef<{ compactChart: string, chartCurrency: string }>) {
             if (!this.focusListener || !this.tvWidget) {
                 return;
             }
-            if (this.compact !== (state.compactChart === "1")) {
-                this.initChart(!this.compact);
+            const newCurrency = state.chartCurrency;
+            const currencyChanged = this.currency !== newCurrency;
+            if (currencyChanged) {
+                this.currency = newCurrency;
             }
+
+            const newCompact = state.compactChart === "1";
+            if (this.compact !== newCompact) {
+                this.initChart(newCompact);
+            } else if (currencyChanged) {
+                this.updateTvSymbol(this.symbol + ":" + newCurrency);
+            }
+        },
+        updateTvCurrencyBtn() {
+            if (this.tvCurrencyBtn) {
+                if (this.symbol === "XRD") {
+                    this.tvCurrencyBtn.innerHTML = `Currency: <span class="d3x-currency"><span class="current">USD</span></span>`;
+                } else {
+                    this.tvCurrencyBtn.innerHTML = `
+                        Currency: <span title="Switch Chart Currency" class="apply-common-tooltip d3x-currency c-p">
+                            <span class="current js-click">${this.currency}</span>
+                            <span class="other js-click">${this.otherCurrency}</span>
+                        </span>`;
+                }
+            }
+        },
+        updateTvSymbol(tvSymbol: string) {
+            if (tvSymbol === "XRD:XRD") {
+                tvSymbol = "XRD:USD";
+            }
+            if (this.tvSaveLoadAdapter) {
+                this.tvSaveLoadAdapter.currentSymbol = tvSymbol;
+            }
+            if (this.tvWidget) {
+                this.tvWidget.setSymbol(tvSymbol, this.interval as ResolutionString, noop);
+            }
+            this.updateTvCurrencyBtn();
         },
 
     },
@@ -255,15 +288,13 @@ export default defineComponent({
         SettingsStore() {
             return useSettingsStore();
         },
+        otherCurrency() {
+            return this.currency === "XRD" ? "USD" : "XRD";
+        },
     },
     watch: {
         symbol(newVal) {
-            if (this.tvSaveLoadAdapter) {
-                this.tvSaveLoadAdapter.currentSymbol = newVal;
-            }
-            if (this.tvWidget) {
-                this.tvWidget.setSymbol(newVal, this.interval as ResolutionString, noop);
-            }
+            this.updateTvSymbol(newVal + ":" + this.currency);
         },
     }
 });

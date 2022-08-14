@@ -35,7 +35,10 @@
                 </ul>
             </div>
         </div>
-        <sup>&copy;</sup> DogeCubeX 2022
+        <sup>&copy;</sup>&nbsp;DogeCubeX 2022
+        <span class="ms-3">XRD prices by
+            <a class="ms-2 link-dark" href="https://www.coingecko.com/en/api" target="_blank"><icon-gecko/></a>
+        </span>
     </footer>
 </template>
 
@@ -46,10 +49,11 @@ import IconInstagram from "@/components/icons/socials/IconInstagram.vue";
 import { useRoute } from "vue-router";
 import { defineComponent } from "vue";
 import IconGithub from "@/components/icons/socials/IconGithub.vue";
+import IconGecko from "@/components/icons/socials/IconGecko.vue";
 
 export default defineComponent({
     name: "TheFooter",
-    components: {IconGithub, IconInstagram, IconTwitter, IconTelegram},
+    components: {IconGecko, IconGithub, IconInstagram, IconTwitter, IconTelegram},
     computed: {
         showSocials() {
             const route = useRoute();
@@ -63,5 +67,8 @@ export default defineComponent({
 #footer .contact-icons .bi {
     width: 24px;
     height: 24px;
+}
+#footer {
+    margin-bottom: 10px;
 }
 </style>

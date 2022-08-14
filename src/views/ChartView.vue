@@ -5,7 +5,7 @@
             <div class="row">
                 <div class="col-lg-3"></div>
                 <div id="pool-select-parent" class="col-lg-6">
-                    <pool-selector v-model="selectedPool" :initial-selection="symbol" @onPoolSelected="poolChanged" />
+                    <pool-selector v-model="selectedPool" :initial-selection="symbol" :show-xrd="true" @onPoolSelected="poolChanged" />
                 </div>
                 <div class="col-lg-3"></div>
             </div>
@@ -55,7 +55,9 @@ export default  defineComponent({
             return qp;
         },
         poolChanged() {
-            this.symbol = this.selectedPool.token.symbol;
+            if (this.selectedPool) {
+                this.symbol = this.selectedPool.token.symbol;
+            }
         },
     },
     computed: {

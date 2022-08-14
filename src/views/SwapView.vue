@@ -188,6 +188,9 @@ export default defineComponent({
     },
     methods: {
         poolChanged() {
+            if (!this.selectedPool) {
+                return;
+            }
             if (this.queryParams.to) {
                 const query = this.getQueryParams(this.queryParams);
                 query.to = this.selectedPool.token.symbol;

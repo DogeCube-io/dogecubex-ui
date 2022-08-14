@@ -1,0 +1,16 @@
+.d3x-currency.c-p {
+    cursor: pointer;
+}
+.d3x-currency .current {
+    color:green;
+}
+.d3x-currency .other {
+    color: greenyellow;
+    display: none;
+}
+.d3x-currency.c-p:hover .current {
+    display: none;
+}
+.d3x-currency.c-p:hover .other {
+    display: inline;
+}

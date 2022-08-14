@@ -36,7 +36,7 @@
                     </div>
                     <div class="text-center my-3 col-lg-4">
                         <span id="pool-select-parent" class="col-12">
-                            <pool-selector v-model="selectedPool" :simple-view="true"
+                            <pool-selector v-model="selectedPool" :simple-view="true" :show-xrd="true"
                                            :initial-selection="symbol" @onPoolSelected="poolChanged" />
                         </span>
                         <h5 class="d-none d-sm-block ms-2 float-end" style="display: inline;  vertical-align: super;">
@@ -60,9 +60,24 @@
                         </info-column>
                         <info-column>
                             <template v-slot:header>Fully Diluted Valuation</template>
-                            <code class="">{{ displayCurrency0(data.analytics.valuation) }}</code> <span> XRD</span>
+                            <code class="">{{ displayCurrency0(data.analytics.valuation) }}</code>&nbsp;<span>{{data.analytics.currency}}</span>
                         </info-column>
-                        <info-column>
+                        <info-column v-if="data.analytics.currency === 'USD'">
+                            <template v-slot:header>Total Liquidity</template>
+                            <div class="row">
+                                <span v-if="data.analytics.liquidityA">
+                                    <code class="">{{
+                                            displayCurrency0(data.analytics.liquidityA * data.analytics.price * 2)
+                                        }}</code> <span> USD</span>
+                                </span>
+                                <span v-else-if="data.symbol === 'XRD'">
+                                    <code class="">{{
+                                            displayCurrency0(data.analytics.liquidityB * data.analytics.price * 2)
+                                        }}</code> <span> USD</span>
+                                </span>
+                            </div>
+                        </info-column>
+                        <info-column v-else>
                             <template v-slot:header>Pooled Liquidity</template>
                             <div class="row">
                                 <span v-if="data.analytics.liquidityA">
@@ -88,7 +103,7 @@
                             </template>
                             <code class="">{{ displayCurrency0(data.analytics.volume24h) }}</code> /
                             <code class="">{{ displayCurrency0(data.analytics.volume7d) }}</code>
-                            <span> XRD</span>
+                            &nbsp;<span>{{data.analytics.currency}}</span>
                         </info-column>
                         <info-column>
                             <template v-slot:header>
@@ -99,16 +114,16 @@
                             <price-change :value="data.analytics.priceChange7d" />
                         </info-column>
                         <info-column>
-                            <template v-slot:header>Price, XRD</template>
+                            <template v-slot:header>Price, {{data.analytics.currency}}</template>
                             <code class="">{{ displayCurrency(data.analytics.price) }}</code>
                         </info-column>
                     </div>
                 </div>
-                <div v-if="symbol && symbol !== 'XRD'" class="row text-center shadow-sm py-2 mx-auto">
-                    <div class="text-center tv-chart-parent my-3 col-xl-8">
+                <div v-if="symbol" class="row text-center shadow-sm py-2 mx-auto">
+                    <div class="text-center tv-chart-parent my-3" :class="{'col-xl-8': symbol !== 'XRD'}">
                         <TVChartContainer :symbol="symbol" />
                     </div>
-                    <div class="text-center col-xl-4" style="">
+                    <div v-if="symbol !== 'XRD'" class="text-center col-xl-4" style="">
                         <div class="d3x-text-white">
                             <div class="row justify-content-center pt-3 pb-2 g-5">
                                 <div class="col-12" style="max-width: 450px;">
@@ -208,6 +223,7 @@ export default  defineComponent({
     data() {
         return {
             symbol: "",
+            currency: "",
             data: {} as TokenDetailsDto,
             notificationsEnabled: false,
 
@@ -220,9 +236,11 @@ export default  defineComponent({
     },
     props: {},
     async mounted() {
+        this.currency = this.SettingsStore.analyticsCurrency;
         this.initState(this.$route.query.symbol as string);
         this.SwapEventStore.subscribe(this.onNewSwap);
-        this.statusInterval = setInterval(this.loadData, 15000);
+        this.SettingsStore.subscribeAnalyticsCurrencyChange(this.onCurrencyChange);
+        this.statusInterval = setInterval(this.loadData, 30000);
         window.addEventListener('focus', this.loadData);
     },
     unmounted() {
@@ -273,8 +291,10 @@ export default  defineComponent({
             }
         },
         poolChanged() {
-            this.symbol = this.selectedPool.token.symbol;
-            this.initState(this.symbol);
+            if (this.selectedPool) {
+                this.symbol = this.selectedPool.token.symbol;
+                this.initState(this.symbol);
+            }
         },
         getQueryParams(): TokenInfoModel {
             const qp: TokenInfoModel = {};
@@ -284,11 +304,17 @@ export default  defineComponent({
             return qp;
         },
         async loadData() {
-            this.data = await API.get(`/api/token-details.json?symbol=${this.symbol}`);
+            this.data = await API.get(`/api/token-details.json?symbol=${this.symbol}&currency=${this.currency}`);
         },
         onNewSwap(state: UnwrapRef<{ lastSwap: TokenSwapDto }>) {
             const swap: TokenSwapDto = state.lastSwap;
             if (swap.tokenFrom === this.symbol || swap.tokenTo === this.symbol) {
+                this.loadData();
+            }
+        },
+        onCurrencyChange(state: UnwrapRef<{ analyticsCurrency: string }>) {
+            if (this.currency !== state.analyticsCurrency) {
+                this.currency = state.analyticsCurrency;
                 this.loadData();
             }
         },

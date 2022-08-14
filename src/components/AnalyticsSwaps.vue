@@ -65,7 +65,7 @@ export default defineComponent({
     async mounted() {
         this.loadData();
         this.SwapEventStore.subscribe(this.onNewSwap);
-        this.statusInterval = setInterval(this.loadData, 15000);
+        this.statusInterval = setInterval(this.loadData, 30000);
         window.addEventListener('focus', this.loadData);
     },
     unmounted() {

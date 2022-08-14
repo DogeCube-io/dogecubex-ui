@@ -10,6 +10,8 @@ export const useSettingsStore = defineStore({
         notificationSounds: useLocalStorage("d3x.Settings.notificationSounds", "0"),
 
         compactChart: useLocalStorage("d3x.Settings.compactChart", "0"),
+        chartCurrency: useLocalStorage("d3x.Settings.chartCurrency", "XRD"),
+        analyticsCurrency: useLocalStorage("d3x.Settings.analyticsCurrency", "XRD"),
     }),
     actions: {
         setNotificationMode(mode: string) {
@@ -41,7 +43,22 @@ export const useSettingsStore = defineStore({
                 compactChart: enabled ? "1" : "0",
             });
         },
-        subscribeCompactChart(callback: (state: UnwrapRef<{ compactChart: string }>) => void) {
+        subscribeChartChange(callback: (state: UnwrapRef<{ compactChart: string, chartCurrency: string }>) => void) {
+            this.$subscribe((mutation, state) => {
+                callback(state);
+            });
+        },
+        setChartCurrency(currency: string) {
+            this.$patch({
+                chartCurrency: currency || "",
+            });
+        },
+        setAnalyticsCurrency(currency: string) {
+            this.$patch({
+                analyticsCurrency: currency || "",
+            });
+        },
+        subscribeAnalyticsCurrencyChange(callback: (state: UnwrapRef<{ analyticsCurrency: string }>) => void) {
             this.$subscribe((mutation, state) => {
                 callback(state);
             });

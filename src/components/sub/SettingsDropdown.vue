@@ -56,6 +56,29 @@
                 </div>
             </div>
         </div>
+        <hr>
+        <div class="row">
+            <div class="col-6">
+                <label for="analytics-currency-range" class="form-label">Site Currency: </label>
+            </div>
+            <div class="col-6">
+                <div class="row">
+                    <div class="col-3">&nbsp;</div>
+                    <div class="col-6">
+                        <div class="form-check form-switch">
+                            <input v-model="analyticsCurrencyMode" class="form-check-input selector" type="checkbox" role="switch"
+                                   @input="onCurrencyChange" id="analytics-currency-range">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-2">&nbsp;</div>
+                    <div  class="col-8" :class="analyticsCurrencyMode ? 'text-end' : 'text-start'">
+                        <span>{{ analyticsCurrencyMode ? "USD" : "XRD" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -73,6 +96,9 @@ export default defineComponent({
             notificationMode: "4",
             notificationSounds: false,
             compactChart: false,
+
+            analyticsCurrencyMode: false,
+
             notificationModesMap: {
                 "1": "OFF",
                 "2": "Relevant",
@@ -96,6 +122,7 @@ export default defineComponent({
         this.notificationMode = this.SettingsStore.notificationMode;
         this.notificationSounds = this.SettingsStore.notificationSounds === "1";
         this.compactChart = this.SettingsStore.compactChart === "1";
+        this.analyticsCurrencyMode = this.SettingsStore.analyticsCurrency === "USD";
         setTimeout(() => {
             this.initTooltips();
         });
@@ -126,9 +153,12 @@ export default defineComponent({
             }
         },
         onCompactChartChange(evt: Event) {
-            const target = evt.target as HTMLInputElement;
-            const checked = target.checked;
+            const checked = (evt.target as HTMLInputElement).checked;
             this.SettingsStore.setCompactChart(checked);
+        },
+        onCurrencyChange(evt: Event) {
+            const checked = (evt.target as HTMLInputElement).checked;
+            this.SettingsStore.setAnalyticsCurrency(checked ? "USD" : "XRD");
         },
         initTooltips() {
             for (const tip of this.tooltips) {
@@ -184,5 +214,18 @@ export default defineComponent({
 
 .settings-dropdown.dropdown-menu-end[data-bs-popper] {
     /*right: auto;*/
+}
+
+.form-switch .form-check-input {
+    cursor: pointer;
+}
+.form-switch .form-check-input.selector {
+    width: 50px;
+}
+.form-switch .form-check-input.selector:not(:checked) {
+    background-color: #2a9fd6;
+    border-color: #2a9fd6;
+    background-position: left center;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e")
 }
 </style>

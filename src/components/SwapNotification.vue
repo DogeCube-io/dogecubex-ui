@@ -89,7 +89,7 @@ export default defineComponent({
                     position: "top-left" as POSITION,
                     timeout: 5000,
                     closeOnClick: false,
-                    pauseOnFocusLoss: true,
+                    pauseOnFocusLoss: false,
                     pauseOnHover: true,
                     draggable: true,
                     draggablePercent: 0.6,

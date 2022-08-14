@@ -118,6 +118,7 @@ declare type TokenAnalyticsDto = {
     liquidityA: number;
     liquidityB: number;
     valuation: number;
+    currency: string;
 }
 
 declare type TokenSwapDto = {

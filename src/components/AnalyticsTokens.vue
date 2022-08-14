@@ -5,17 +5,17 @@
             <th scope="col">&nbsp;</th>
             <th scope="col" class="text-start">Name</th>
             <th scope="col" colspan="2">Liquidity</th>
-            <th scope="col">Volume (24h), XRD</th>
+            <th scope="col">Volume (24h), {{ loadedCurrency }}</th>
             <th scope="col">
                 <icon-arrow-down />
-                Volume (7d), XRD
+                Volume (7d), {{ loadedCurrency }}
             </th>
             <th scope="col">&nbsp;</th>
-            <th scope="col">Price, XRD</th>
+            <th scope="col">Price, {{ loadedCurrency }}</th>
             <th scope="col"><span>Δ</span><sub>Price</sub> (24h)</th>
             <th scope="col"><span>Δ</span><sub>Price</sub> (7d)</th>
             <th scope="col">FDV <span data-bs-toggle="tooltip" data-bs-placement="left" title="Fully Diluted Valuation"><icon-question /></span>,
-                XRD
+                {{ loadedCurrency }}
             </th>
         </tr>
         </thead>
@@ -69,11 +69,13 @@ import API from "@/util/API";
 import { useSwapEventStore } from "@/stores/SwapEventStore";
 import type { UnwrapRef } from "vue";
 import { defineComponent } from "vue";
+import { useSettingsStore } from "@/stores/SettingsStore";
 
 export default defineComponent({
     components: {IconGraphUp, PriceChange, IconQuestion, IconArrowDown},
     data() {
         return {
+            loadedCurrency: "XRD",
             data: [] as TokenAnalyticsDto[],
 
             statusInterval: null as ReturnType<typeof setInterval> | null,
@@ -87,8 +89,9 @@ export default defineComponent({
         this.loadData();
 
         this.SwapEventStore.subscribe(this.onNewSwap);
+        this.SettingsStore.subscribeAnalyticsCurrencyChange(this.onCurrencyChange);
 
-        this.statusInterval = setInterval(this.loadData, 15000);
+        this.statusInterval = setInterval(this.loadData, 30000);
         window.addEventListener('focus', this.loadData);
     },
     unmounted() {
@@ -100,7 +103,9 @@ export default defineComponent({
     },
     methods: {
         async loadData() {
-            this.data = await API.get("/api/analytics/tokens.json") as TokenAnalyticsDto[] || [];
+            const currency = this.currency;
+            this.data = await API.get(`/api/analytics/tokens.json?currency=${currency}`) as TokenAnalyticsDto[] || [];
+            this.loadedCurrency = currency;
         },
         displayCurrency(amount: string | number) {
             return Utils.displayCurrency(amount);
@@ -110,11 +115,20 @@ export default defineComponent({
         },
         onNewSwap(state: UnwrapRef<{ lastSwap: TokenSwapDto }>) {
             this.loadData();
-        }
+        },
+        onCurrencyChange(state: UnwrapRef<{ analyticsCurrency: string }>) {
+            this.loadData();
+        },
     },
     computed: {
         SwapEventStore() {
             return useSwapEventStore();
+        },
+        SettingsStore() {
+            return useSettingsStore();
+        },
+        currency() {
+            return this.SettingsStore.analyticsCurrency;
         },
     }
 
