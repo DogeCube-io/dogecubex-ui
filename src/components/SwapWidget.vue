@@ -101,14 +101,15 @@
                     <div>
                         To swap send
                     </div>
-                    <div>
-                                <span class="badge bg-info"> <span>{{ quoteSendAmount }}</span> <span
-                                >{{ quoteSendToken }}</span></span>
+                    <div class="js-click-parent">
+                        <copy-trigger class="badge bg-info">
+                            <span>{{ quoteSendAmount }}</span> <span>{{ quoteSendToken }}</span>
+                        </copy-trigger>
                         <button-copy clazz="black float-end" :value="String(quoteSendAmount)" />
                         <br> to the pool account with <b>an optional</b> message:
                     </div>
-                    <div>
-                        <span class="badge bg-primary">{{ walletMessage }}</span>
+                    <div class="js-click-parent">
+                        <copy-trigger class="badge bg-primary">{{ walletMessage }}</copy-trigger>
                         <button-copy clazz="black float-end" :value="walletMessage" />
                     </div>
                 </div>
@@ -131,9 +132,11 @@ import API from "@/util/API";
 import Models from "@/util/Models";
 import { defineComponent } from "vue";
 import type { PropType } from "vue";
+import CopyTrigger from "@/components/sub/CopyTrigger.vue";
+import Utils from "@/util/Utils";
 
 export default defineComponent({
-    components: {IconInfo, IconChangeDirection, IconArrowDown, IconSliders, ButtonCopy},
+    components: {CopyTrigger, IconInfo, IconChangeDirection, IconArrowDown, IconSliders, ButtonCopy},
     data() {
         return {
 
@@ -429,10 +432,10 @@ export default defineComponent({
                 if (xrdValue < 0) {
                     this.fPrice = "N/A";
                 } else if (this.priceInXRD) {
-                    const p = Number(price.toPrecision(6)).toFixed(12).replace(/\.?0+$/, "");
+                    const p = this.toPrecision6(price);
                     this.fPrice = `1 ${otherToken} = ${p} ${mainToken}`;
                 } else {
-                    const p = Number((1 / price).toPrecision(6)).toFixed(12).replace(/\.?0+$/, "");
+                    const p = this.toPrecision6(1 / price);
                     this.fPrice = `1 ${mainToken} = ${p} ${otherToken}`;
                 }
 
@@ -483,6 +486,9 @@ export default defineComponent({
             }
             this.swapModel = swapModel;
             this.$emit('onUpdateModel', swapModel);
+        },
+        toPrecision6(num: number) {
+            return Utils.displayCurrencyShort(num);
         },
     },
     computed: {

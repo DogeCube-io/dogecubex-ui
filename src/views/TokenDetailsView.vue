@@ -134,8 +134,10 @@
                             <div class="row justify-content-center pb-2 g-5">
                                 <div class="col-12" style="max-width: 450px;">
                                     <span class="float-start">Pool account: </span>
-                                    <span v-if="data.poolAccount" class="d-inline-block float-end">
-                                        <span class="badge bg-info ms-1">{{ util.shortAddress(data.poolAccount) }}</span>
+                                    <span v-if="data.poolAccount" class="d-inline-block float-end js-click-parent">
+                                        <copy-trigger class="badge bg-info ms-1">
+                                            {{ util.shortAddress(data.poolAccount) }}
+                                        </copy-trigger>
                                         &nbsp;<button-copy clazz="white float-end" :value="data.poolAccount" />
                                     </span>
                                 </div>
@@ -209,9 +211,11 @@ import { useSettingsStore } from "@/stores/SettingsStore";
 import IconBellOn from "@/components/icons/IconBellOn.vue";
 import type { PoolInfoDto } from "../../env";
 import PoolSelector from "@/components/PoolSelector.vue";
+import CopyTrigger from "@/components/sub/CopyTrigger.vue";
 
 export default  defineComponent({
     components: {
+        CopyTrigger,
         PoolSelector,
         IconBellOn,
         IconBellOff,

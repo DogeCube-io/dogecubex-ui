@@ -37,7 +37,7 @@
         </div>
         <sup>&copy;</sup>&nbsp;DogeCubeX 2022
         <span class="ms-3">XRD prices by
-            <a class="ms-2 link-dark" href="https://www.coingecko.com/en/api" target="_blank"><icon-gecko/></a>
+            <a class="ms-1 link-dark" href="https://www.coingecko.com/en/api" target="_blank"><icon-gecko/></a>
         </span>
     </footer>
 </template>

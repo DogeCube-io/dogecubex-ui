@@ -1,7 +1,7 @@
 <template>
     <TheHeader active-page="Analytics" :show-images="true" />
     <main>
-        <div class="px-4 my-5 text-center">
+        <div class="px-1 px-sm-4 my-5 text-center">
             <br>
             <div class="mx-auto container d3x-text-white">
                 <div class="my-3">

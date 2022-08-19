@@ -100,12 +100,24 @@ declare type QuoteDto = {
 
 declare type SummaryStatsDto = {
     count: number;
+    volume: string;
+}
+
+declare type SummaryStatsV2Dto = {
+    count: number;
     volume: number;
 }
 
 declare type AnalyticsSummaryDto = {
     day: SummaryStatsDto;
     week: SummaryStatsDto;
+}
+
+declare type AnalyticsSummaryV2Dto = {
+    day: SummaryStatsV2Dto;
+    week: SummaryStatsV2Dto;
+    total: SummaryStatsV2Dto;
+    liquidity: number;
 }
 
 declare type TokenAnalyticsDto = {

@@ -1,6 +1,6 @@
 <template>
     <button ref="btnCopy" role="button" @click="copyValue"
-            class="btn btn-outline-secondary btn-sm copy-btn-sm" :class="'copy-btn-sm-' + clazz">
+            class="btn btn-outline-secondary btn-sm copy-btn-sm js-btn-copy" :class="'copy-btn-sm-' + clazz">
         <IconCopy />
     </button>
 </template>

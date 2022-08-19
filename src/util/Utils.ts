@@ -19,6 +19,14 @@ export default class Utils {
         return addr.substring(0, prefixLength) + "..." + addr.substring(addr.length - 8);
     }
 
+    static displayCurrencyShort(amount: string | number): string {
+        return this.formatShort.format(Number(amount));
+    }
+
+    static displayCurrencyShort0(amount: string | number): string {
+        return this.formatShort.format(Math.round(Number(amount))).split(".")[0];
+    }
+
     static displayCurrency(amount: string | number): string {
         return this.formatLong.format(Number(amount));
     }

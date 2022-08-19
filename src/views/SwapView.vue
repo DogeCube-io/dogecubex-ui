@@ -19,8 +19,10 @@
                 <div class="row justify-content-center pb-2 g-5" v-show="selectedPool && selectedPool.account">
                     <div v-if="selectedPool" class="col-12" style="max-width: 450px;">
                         <span class="float-start">Pool account: </span>
-                        <span class="d-inline-block float-end">
-                            <span class="badge bg-info ms-1">{{ util.shortAddress(selectedPool.account) }}</span>
+                        <span class="d-inline-block float-end js-click-parent">
+                            <copy-trigger class="badge bg-info ms-1">
+                                {{ util.shortAddress(selectedPool.account) }}
+                            </copy-trigger>
                             &nbsp;<button-copy clazz="white float-end" :value="selectedPool.account" />
                         </span>
                     </div>
@@ -149,9 +151,11 @@ import SwapWidget from "@/components/SwapWidget.vue";
 import Models from "@/util/Models";
 import { useActiveStateStore } from "@/stores/ActiveStateStore";
 import { defineComponent } from "vue";
+import CopyTrigger from "@/components/sub/CopyTrigger.vue";
 
 export default defineComponent({
     components: {
+        CopyTrigger,
         SwapWidget, StatusWidget, PoolSelector, ButtonCopy, TheHeader
     },
     data() {

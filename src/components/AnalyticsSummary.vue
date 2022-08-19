@@ -1,34 +1,55 @@
 <template>
-    <div class="row">
+    <div v-if="!longAnalytics" class="row va-mid">
         <div class="col">
-            Swaps&nbsp;(24h): <code>{{ data.day ? data.day.count : '--' }}</code>
+            Swaps&nbsp;(24h): <code>{{ data.day ? displayCurrencyShort(data.day.count) : '--' }}</code>
         </div>
         <div class="col">
-            Volume&nbsp;(24h): <code>{{ data.day ? data.day.volume : '--' }}</code>&nbsp;{{ loadedCurrency }}
+            Volume&nbsp;(24h): <code>{{ data.day ? displayCurrencyShort(data.day.volume) : '--' }}</code>&nbsp;{{ loadedCurrency }}
         </div>
         <div class="col">
-            Swaps&nbsp;(7d): <code>{{ data.week ? data.week.count : '--' }}</code>
+            Swaps&nbsp;(7d): <code>{{ data.week ? displayCurrencyShort(data.week.count) : '--' }}</code>
         </div>
         <div class="col">
-            Volume&nbsp;(7d): <code>{{ data.week ? data.week.volume : '--' }}</code>&nbsp;{{ loadedCurrency }}
+            Volume&nbsp;(7d): <code>{{ data.week ? displayCurrencyShort(data.week.volume) : '--' }}</code>&nbsp;{{ loadedCurrency }}
+        </div>
+    </div>
+    <div v-else class="row va-mid">
+        <div class="col">
+            Swaps&nbsp;(24h): <code>{{ data.day ? displayCurrencyShort(data.day.count) : '--' }}</code>
+        </div>
+        <div class="col">
+            Volume&nbsp;(24h): <code>{{ data.day ? displayCurrencyShort(data.day.volume) : '--' }}</code>&nbsp;{{ loadedCurrency }}
+        </div>
+        <div class="col">
+            Swaps&nbsp;(Total): <code>{{ data.total ? displayCurrencyShort(data.total.count) : '--' }}</code>
+        </div>
+        <div class="col">
+            Volume&nbsp;(Total): <code>{{ data.total ? displayCurrencyShort(data.total.volume) : '--' }}</code>&nbsp;{{ loadedCurrency }}
+        </div>
+    </div>
+    <div class="row va-mid mt-2">
+        <div class="col-12">
+            Total Liquidity: &nbsp;<code>{{ data.liquidity ? displayCurrencyShort(data.liquidity) : '--' }}</code> {{ loadedCurrency }}
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import type { AnalyticsSummaryDto, TokenSwapDto } from "../../env";
+import type { AnalyticsSummaryV2Dto, TokenSwapDto } from "../../env";
 import API from "@/util/API";
 import type { UnwrapRef } from "vue";
 import { defineComponent } from "vue";
 import { useSwapEventStore } from "@/stores/SwapEventStore";
 import { useSettingsStore } from "@/stores/SettingsStore";
+import Utils from "@/util/Utils";
 
 export default defineComponent({
     components: {},
     data() {
         return {
             loadedCurrency: "XRD",
-            data: {} as AnalyticsSummaryDto,
+            data: {} as AnalyticsSummaryV2Dto,
+            longAnalytics: false,
 
             statusInterval: null as ReturnType<typeof setInterval> | null,
         }
@@ -50,14 +71,18 @@ export default defineComponent({
     methods: {
         async loadData() {
             const currency = this.currency;
-            this.data = await API.get(`/api/analytics/summary.json?currency=${currency}`) as AnalyticsSummaryDto;
+            this.data = await API.get(`/api/analytics/summary-v2.json?currency=${currency}`) as AnalyticsSummaryV2Dto;
             this.loadedCurrency = currency;
+            this.longAnalytics = Math.round(Date.now() / 30000) % 2 === 0;
         },
         onNewSwap(state: UnwrapRef<{ lastSwap: TokenSwapDto }>) {
             this.loadData();
         },
         onCurrencyChange(state: UnwrapRef<{ analyticsCurrency: string }>) {
             this.loadData();
+        },
+        displayCurrencyShort(num: number) {
+            return Utils.displayCurrencyShort(num);
         },
     },
     computed: {

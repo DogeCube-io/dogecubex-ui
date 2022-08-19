@@ -111,6 +111,13 @@ header.site-header nav {
 .hide {
     display: none;
 }
+.copy-on-click {
+    user-select: none;
+    cursor: pointer;
+}
+.va-mid {
+    align-items: center;
+}
 
 input[type=range] {
     touch-action: none;
