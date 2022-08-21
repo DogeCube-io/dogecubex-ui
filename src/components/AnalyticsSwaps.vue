@@ -10,7 +10,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="swap in data" v-bind:key="`${swap.tokenFrom}-${swap.tokenTo}-${swap.dateAdded}`">
+        <tr v-for="swap in data" v-bind:key="`${swap.tokenFrom}-${swap.tokenTo}-${swap.txIn.substring(0, 8)}-${swap.txOut.substring(0, 8)}`">
             <td class="text-start">
                 <span v-if="!isSingleSymbol" class="me-1">
                     <RouterLink class="link-dark" :to="{ path: '/info', query:

@@ -36,7 +36,7 @@
             </div>
         </div>
         <sup>&copy;</sup>&nbsp;DogeCubeX 2022
-        <span class="ms-3">XRD prices by
+        <span v-if="showGecko" class="ms-3">XRD prices by
             <a class="ms-1 link-dark" href="https://www.coingecko.com/en/api" target="_blank"><icon-gecko/></a>
         </span>
     </footer>
@@ -58,7 +58,11 @@ export default defineComponent({
         showSocials() {
             const route = useRoute();
             return route.path !== "/";
-        }
+        },
+        showGecko() {
+            const route = useRoute();
+            return ["/tokens", "/chart", "/analytics", "/info"].indexOf(route.path) > -1;
+        },
     }
 });
 </script>
