@@ -13,6 +13,10 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
+                <div class="connect-parent me-md-2">
+                    <button-connect />
+                </div>
+
                 <settings-dropdown btn-id="settings-dropdown-btn-sm" add-class="d-sm-none" />
 
                 <div class="collapse navbar-collapse" id="site-navbar">
@@ -48,12 +52,17 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import SettingsDropdown from "@/components/sub/SettingsDropdown.vue";
+import ButtonConnect from "@/components/ButtonConnect.vue";
 
 
 const dropDownItems: { [key: string]: { name: string; url: string; } } = {
     About: {
         name: "About",
         url: "/about",
+    },
+    FAQ: {
+        name: "FAQ",
+        url: "/faq",
     },
     HowTo: {
         name: "How To Swap",
@@ -71,7 +80,7 @@ const dropDownItems: { [key: string]: { name: string; url: string; } } = {
 
 export default defineComponent({
     name: "TheHeader",
-    components: {SettingsDropdown},
+    components: {ButtonConnect, SettingsDropdown},
     data() {
         return {};
     },
@@ -88,7 +97,7 @@ export default defineComponent({
     },
     computed: {
         headerItems(): string[] {
-            return ["Swap", "Info", "Chart", "Analytics", "FAQ"];
+            return ["Swap", "Info", "Chart", "Analytics"];
         },
         dropdownClass(): string {
             return dropDownItems[this.activePage] ? "active" : "";
@@ -103,5 +112,15 @@ export default defineComponent({
 <style>
 .site-header .navbar-toggler {
     margin-left: auto;
+}
+.site-header .connect-parent {
+    display: inline-flex;
+    justify-content: right;
+}
+
+@media (min-width: 576px) {
+    .site-header .connect-parent {
+        width: 100%;
+    }
 }
 </style>

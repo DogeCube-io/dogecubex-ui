@@ -5,6 +5,7 @@ import ConfigLoader from "@/components/ConfigLoader.vue";
 import { useGlobalErrorStore } from "@/stores/GlobalErrorStore";
 import ErrorView from "@/views/ErrorView.vue";
 import SwapNotification from "@/components/SwapNotification.vue";
+import ConnectWalletModal from "@/components/modal/ConnectWalletModal.vue";
 // empty line
 
 </script>
@@ -14,6 +15,7 @@ import SwapNotification from "@/components/SwapNotification.vue";
     <RouterView v-else />
     <ConfigLoader />
     <swap-notification />
+    <connect-wallet-modal />
     <TheFooter />
 </template>
 

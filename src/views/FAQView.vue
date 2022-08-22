@@ -7,7 +7,7 @@
                 <div class="my-3 py-3">
                     <h2 class="display-5 text-white text-center">FAQs</h2>
                 </div>
-                <div class="shadow-sm mx-auto py-3" style="width: 80%;border-radius: 21px 21px 0 0;">
+                <div class="shadow-sm mx-auto py-3 px-md-5" style="border-radius: 21px 21px 0 0;">
                     <div class="accordion" id="infos">
                         <div class="accordion-item" v-for="(faq, index) in FAQs" v-bind:key="index">
                             <h2 class="accordion-header" :id="'info-r' + index">

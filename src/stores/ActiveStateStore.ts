@@ -22,7 +22,13 @@ export const useActiveStateStore = defineStore({
         //map: symbol => {amount?, xrd?}
         lastInputs: useLocalStorage("d3x.ActiveState.lastInputs", getOldSettingsObj("lastInputs")),
         xrd: useLocalStorage("d3x.ActiveState.xrd", getOldSettingsString("xrd")),
+
+        connectedAccount: useLocalStorage("d3x.ActiveState.connectedAccount", null as string|null),
+        accounts: useLocalStorage("d3x.ActiveState.accounts", ""),
     }),
+    getters: {
+        accountsArr: (state) => JSON.parse(state.accounts || "[]") as string[]
+    },
     actions: {
         setState(symbol: string, mode: string) {
             this.$patch({
@@ -54,6 +60,24 @@ export const useActiveStateStore = defineStore({
             this.$patch((state) => {
                 state.lastInputs = lastInputs;
             })
+        },
+        connectAccount(account: string) {
+            let accounts = this.accountsArr;
+            if (account) {
+                accounts = accounts.filter(e => e !== account);
+                accounts.unshift(account);
+            }
+            this.$patch({
+                connectedAccount: account,
+                accounts: JSON.stringify(accounts),
+            });
+        },
+        removeAccount(account: string) {
+            let accounts = this.accountsArr;
+            accounts = accounts.filter(e => e !== account);
+            this.$patch({
+                accounts: JSON.stringify(accounts),
+            });
         },
     },
 });

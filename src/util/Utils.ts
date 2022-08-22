@@ -19,6 +19,28 @@ export default class Utils {
         return addr.substring(0, prefixLength) + "..." + addr.substring(addr.length - 8);
     }
 
+    static addressHuge(addr: string): string {
+        if (!addr) {
+            return "";
+        }
+        return addr.substring(0, 13) + "..." + addr.substring(addr.length - 10);
+    }
+
+    static addressMedium(addr: string): string {
+        if (!addr) {
+            return "";
+        }
+        return addr.substring(0, 4) + "..." + addr.substring(addr.length - 8);
+    }
+
+    static addressTiny(addr: string): string {
+        if (!addr) {
+            return "";
+        }
+        return addr.substring(0, 2) + ".." + addr.substring(addr.length - 6);
+    }
+
+
     static displayCurrencyShort(amount: string | number): string {
         return this.formatShort.format(Number(amount));
     }
