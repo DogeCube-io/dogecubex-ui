@@ -157,3 +157,11 @@ declare type TokenDetailsDto = {
     analytics: TokenAnalyticsDto;
 }
 
+declare type AccountInfoDto = {
+    maxOrderSize: number;
+    balances: Record<string, string> | null;
+}
+
+declare type AccountInfoDtoExt = AccountInfoDto & {
+    account: string;
+}

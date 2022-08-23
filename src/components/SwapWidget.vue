@@ -53,6 +53,10 @@
                            :class="{'is-valid': inputFromValid !== null && inputFromValid,
                                             'is-invalid': inputFromValid !== null && !inputFromValid}"
                            v-model="amountFrom" @keyup="onInputChange" @change="onInputChange" step="0.1">
+                    <button v-if="userAccBalance" class="btn btn-sm max-btn"
+                            :class="amountFrom == maxAmountFrom ? 'btn-outline-info shadow-none' : 'btn-info'"
+                            @click.stop="onMaxClick">Max
+                    </button>
                     <span class="input-group-text token-name">{{ tokenFrom }}</span>
                 </div>
             </div>
@@ -95,22 +99,27 @@
             </slide-up-down>
 
             <div class="row message-row" :class="{hide: hideMessageRow}">
-                <div class="alert alert-danger" :class="{hide: !error}" role="alert">{{ error }}</div>
+                <div class="alert alert-danger" :class="{hide: !error}" role="alert" v-html="error"></div>
                 <div class="alert alert-danger" :class="{hide: !warning}" role="alert" v-html="warning"></div>
-                <div id="swap-message-prompt" :class="{hide: error}">
+                <div v-if="!zeusConnected" id="swap-message-prompt" :class="{hide: error}">
                     <div>
                         To swap send
                     </div>
                     <div class="js-click-parent">
                         <copy-trigger class="badge bg-info">
-                            <span>{{ quoteSendAmount }}</span> <span>{{ quoteSendToken }}</span>
+                            <span>{{ quoteSendAmountNum }}</span> <span>{{ quoteSendToken }}</span>
                         </copy-trigger>
-                        <button-copy clazz="black float-end" :value="String(quoteSendAmount)" />
+                        <button-copy clazz="black float-end" :value="quoteSendAmount" />
                         <br> to the pool account with <b>an optional</b> message:
                     </div>
                     <div class="js-click-parent">
                         <copy-trigger class="badge bg-primary">{{ walletMessage }}</copy-trigger>
                         <button-copy clazz="black float-end" :value="walletMessage" />
+                    </div>
+                </div>
+                <div v-else :class="{hide: error}">
+                    <div class="mt-1">
+                        <button class="btn btn-sm btn-primary px-3" @click.stop="onClickSwap">Swap</button>
                     </div>
                 </div>
             </div>
@@ -130,10 +139,13 @@ import IconInfo from "@/components/icons/IconInfo.vue";
 import { useAmmConfigStore } from "@/stores/AmmConfigStore";
 import API from "@/util/API";
 import Models from "@/util/Models";
-import { defineComponent } from "vue";
 import type { PropType } from "vue";
+import { defineComponent } from "vue";
 import CopyTrigger from "@/components/sub/CopyTrigger.vue";
 import Utils from "@/util/Utils";
+import { useAccountInfoStore } from "@/stores/AccountInfoStore";
+import { useActiveStateStore } from "@/stores/ActiveStateStore";
+import { useWalletConnectionStore } from "@/stores/WalletConnectionStore";
 
 export default defineComponent({
     components: {CopyTrigger, IconInfo, IconChangeDirection, IconArrowDown, IconSliders, ButtonCopy},
@@ -160,6 +172,7 @@ export default defineComponent({
             inputFromValid: null as null | boolean,
             inputToValid: null as null | boolean,
             hideMessageRow: true,
+            maxTokenAmountFrom: "",
 
 
             error: "" as string | null,
@@ -169,7 +182,8 @@ export default defineComponent({
             fPrice: "",
             priceImpact: "",
             minimumReceived: "",
-            quoteSendAmount: 0,
+            quoteSendAmountNum: 0,
+            quoteSendAmount: "",
             quoteSendToken: "",
             walletMessage: "",
 
@@ -188,6 +202,14 @@ export default defineComponent({
             required: true,
         },
         symbol: {
+            type: String,
+            required: true,
+        },
+        poolAccount: {
+            type: String,
+            required: true,
+        },
+        tokenRri: {
             type: String,
             required: true,
         },
@@ -242,7 +264,77 @@ export default defineComponent({
             }
             this.expandDetails = !this.expandDetails;
         },
+        async getMaxTokenSell(): Promise<string | null> {
+            const response = await API.postRaw("/api/swap/quote.json", {
+                from: this.tokenFrom,
+                to: this.tokenTo,
+                amountTo: this.userMaxOrder,
+                maxSlippage: this.maxSlippage
+            });
+
+            if (!response.ok) {
+                return null;
+            }
+
+            const resp = await response.json() as QuoteDto;
+            const error = resp && resp.error;
+
+            if (error) {
+                return null;
+            }
+
+            return resp.minAmount || null;
+        },
+        async onMaxClick() {
+            if (this.userMaxOrder && this.userAccBalance) {
+                if (this.tokenFrom === "XRD") {
+                    this.amountFrom = this.maxAmountFrom;
+                    this.onChange(true, "amount-from");
+                } else {
+                    const maxTokenSell = await this.getMaxTokenSell();
+                    if (maxTokenSell && Utils.compare(maxTokenSell, this.userAccBalance) >= 0) {
+                        this.maxTokenAmountFrom = this.userAccBalance;
+                        this.amountFrom = this.maxTokenAmountFrom;
+                        this.onChange(true, "amount-from");
+                    } else {
+                        this.maxTokenAmountFrom = "";
+                        this.amountTo = this.userMaxOrder;
+                        this.onChange(true, "amount-to");
+                    }
+                }
+            }
+        },
+        async onClickSwap() {
+            if (this.zeusConnected && !this.error && this.poolAccount && this.tokenRri) {
+                if (window.z3us && window.z3us.v1) {
+
+                    const tx = {
+                        actions: [
+                            {
+                                type: 'TransferTokens',
+                                from_account: {
+                                    address: this.connectedWallet,
+                                },
+                                to_account: {
+                                    address: this.poolAccount,
+                                },
+                                amount: {
+                                    token_identifier: {
+                                        rri: this.tokenFrom === "XRD" ? Utils.XRD_TOKEN.rri : this.tokenRri,
+                                    },
+                                    value: Utils.toAttos(this.quoteSendAmount),
+                                },
+                            },
+                        ],
+                        message: this.walletMessage,
+                        encryptMessage: false,
+                    };
+                    await window.z3us.v1.submitTransaction(tx);
+                }
+            }
+        },
         updateSymbol(symbol: string) {
+            this.maxTokenAmountFrom = "";
             if (this.swapModel.to) {
                 this.changeModel({
                     to: symbol,
@@ -279,7 +371,7 @@ export default defineComponent({
             }
         },
 
-        showErrorMessage(error: string | null) {
+        showErrorMessage(error: string | null, html?: boolean) {
             if (this.isInputBySource) {
                 this.amountTo = null;
             } else {
@@ -289,7 +381,13 @@ export default defineComponent({
             this.priceImpact = "";
             this.fPrice = "";
             this.hideMessageRow = false;
-            this.error = error;
+            if (error && !html) {
+                const $div = document.createElement("div");
+                $div.innerText = error;
+                this.error = $div.innerHTML;
+            } else {
+                this.error = error;
+            }
             this.warning = null;
         },
         onModelChanged() {
@@ -376,7 +474,7 @@ export default defineComponent({
                 const receivedAmount = Number(this.isInputBySource ? resp.receivedAmount : amountTo);
                 const minAmount = Number(this.isInputBySource ? resp.minAmount : amountTo);
                 const minFromAmount = Number(this.isInputBySource ? amountFrom : resp.minAmount);
-                const amountToSend = Number(this.isInputBySource ? amountFrom : resp.sentAmount);
+                const amountToSend = this.isInputBySource ? amountFrom : resp.sentAmount;
 
                 const xrdValue = to === 'XRD' ? receivedAmount : minFromAmount;
                 const price = to === 'XRD' ? receivedAmount / minFromAmount : minFromAmount / receivedAmount;
@@ -406,14 +504,24 @@ export default defineComponent({
                     }
                     this.error = null;
                     this.hideMessageRow = false;
-                    this.quoteSendAmount = amountToSend;
+                    this.quoteSendAmount = String(amountToSend);
+                    this.quoteSendAmountNum = Number(amountToSend);
                     this.quoteSendToken = this.tokenFrom;
-                    if (xrdValue > (this.config.maxOrderSize - 10)) {
-                        this.warning = ('Only <a target="_blank" href="/stakers">Stakers</a> enjoy >' + (this.config.maxOrderSize - 10)
-                            + ' XRD trades.<br>The swap will fail if you exceed your limit.');
-                    } else {
+                    if (this.userMaxOrder) {
                         this.warning = null;
+                        if (xrdValue > this.userMaxOrder) {
+                            this.showErrorMessage('Trade amount exceeds your limit (' + this.userMaxOrder
+                                + ' XRD). Please see <a target="_blank" href="/stakers">Stakers Info</a> for details.', true);
+                        }
+                    } else {
+                        if (xrdValue > (this.config.maxOrderSize - 10)) {
+                            this.warning = ('Only <a target="_blank" href="/stakers">Stakers</a> enjoy >' + (this.config.maxOrderSize - 10)
+                                + ' XRD trades.<br>The swap will fail if you exceed your limit.');
+                        } else {
+                            this.warning = null;
+                        }
                     }
+
 
                     const msgLength = Number(this.messageLengthRange);
 
@@ -507,11 +615,51 @@ export default defineComponent({
             }
             return "";
         },
+        maxAmountFrom() {
+            if (this.userMaxOrder) {
+                if (this.tokenFrom === "XRD") {
+                    if (Utils.compare(this.userAccBalance, "" + this.userMaxOrder) < 0) {
+                        return String(Number(this.userAccBalance) - 0.1);
+                    } else {
+                        return this.userMaxOrder;
+                    }
+                } else {
+                    return this.maxTokenAmountFrom || this.userAccBalance;
+                }
+            }
+            return "";
+        },
+        userMaxOrder() {
+            return this.AccountInfoStore.accountInfo?.maxOrderSize;
+        },
+        userAccBalance() {
+            const balances = this.AccountInfoStore.accountInfo?.balances;
+            if (!balances) {
+                return "";
+            }
+            return balances[this.tokenFrom] || "";
+        },
+
         AmmConfigStore() {
             return useAmmConfigStore();
         },
+        AccountInfoStore() {
+            return useAccountInfoStore();
+        },
+        ActiveStateStore() {
+            return useActiveStateStore();
+        },
+        WalletConnectionStore() {
+            return useWalletConnectionStore();
+        },
+        connectedWallet() {
+            return this.ActiveStateStore.connectedAccount;
+        },
         config(): AmmConfigDto {
             return this.AmmConfigStore.config || {};
+        },
+        zeusConnected() {
+            return this.connectedWallet && this.connectedWallet === this.WalletConnectionStore.zeus;
         },
     },
     watch: {
@@ -554,6 +702,7 @@ export default defineComponent({
         },
         params(newVal) {
             if (!this.swapModel || (this.swapModel.to !== newVal.to) || (this.swapModel.from !== newVal.from)) {
+                this.maxTokenAmountFrom = "";
                 this.swapModel = newVal;
                 this.onModelChanged();
                 this.onChange(true);
@@ -569,5 +718,11 @@ export default defineComponent({
 <style>
 .settings-area {
     overflow-x: hidden;
+}
+
+.max-btn.shadow-none:hover {
+    background-color: transparent;
+    color: #93c;
+    cursor: default;
 }
 </style>

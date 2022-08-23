@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
-import { useLocalStorage } from "@vueuse/core";
+import { RemovableRef, useLocalStorage } from "@vueuse/core";
+import type { UnwrapRef } from "vue-demi";
 
 // TODO: remove after migration
 const getOldSettingsString = (prop: string): string => {
@@ -23,11 +24,11 @@ export const useActiveStateStore = defineStore({
         lastInputs: useLocalStorage("d3x.ActiveState.lastInputs", getOldSettingsObj("lastInputs")),
         xrd: useLocalStorage("d3x.ActiveState.xrd", getOldSettingsString("xrd")),
 
-        connectedAccount: useLocalStorage("d3x.ActiveState.connectedAccount", null as string|null),
+        connectedAccount: useLocalStorage("d3x.ActiveState.connectedAccount", null as string | null) as RemovableRef<string | null>,
         accounts: useLocalStorage("d3x.ActiveState.accounts", ""),
     }),
     getters: {
-        accountsArr: (state) => JSON.parse(state.accounts || "[]") as string[]
+        accountsArr: (state) => JSON.parse(state.accounts || "[]") as string[],
     },
     actions: {
         setState(symbol: string, mode: string) {
@@ -77,6 +78,13 @@ export const useActiveStateStore = defineStore({
             accounts = accounts.filter(e => e !== account);
             this.$patch({
                 accounts: JSON.stringify(accounts),
+            });
+        },
+        subscribeConnectedAccount(callback: (state: UnwrapRef<{ connectedAccount: string | null }>) => void) {
+            this.$subscribe((mutation: any, state) => {
+                if (mutation.payload && mutation.payload.connectedAccount !== undefined) {
+                    callback(state);
+                }
             });
         },
     },

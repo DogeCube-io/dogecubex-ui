@@ -88,8 +88,8 @@ export default defineComponent({
         })
         this.loadData();
 
-        (this as any).SwapEventStore.subscribe(this.onNewSwap);
-        (this as any).SettingsStore.subscribeAnalyticsCurrencyChange(this.onCurrencyChange);
+        this.SwapEventStore.subscribe(this.onNewSwap);
+        this.SettingsStore.subscribeAnalyticsCurrencyChange(this.onCurrencyChange);
 
         this.statusInterval = setInterval(this.loadData, 30000);
         window.addEventListener('focus', this.loadData);
@@ -103,7 +103,7 @@ export default defineComponent({
     },
     methods: {
         async loadData() {
-            const currency = (this as any).currency;
+            const currency = this.currency;
             this.data = await API.get(`/api/analytics/tokens.json?currency=${currency}`) as TokenAnalyticsDto[] || [];
             this.loadedCurrency = currency;
         },
@@ -127,8 +127,8 @@ export default defineComponent({
         SettingsStore() {
             return useSettingsStore();
         },
-        currency() {
-            return (this as any).SettingsStore.analyticsCurrency;
+        currency(): string {
+            return this.SettingsStore.analyticsCurrency;
         },
     }
 

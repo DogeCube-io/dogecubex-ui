@@ -32,6 +32,7 @@ import type { PoolInfoDto } from "../../env";
 import API from "@/util/API";
 import type { PropType } from "vue";
 import { defineComponent } from "vue";
+import Utils from "@/util/Utils";
 
 export default defineComponent({
     components: {},
@@ -65,12 +66,7 @@ export default defineComponent({
             const pools = await API.get("/api/pools-info.json") as PoolInfoDto[];
             if (this.showXrd && pools.length) {
                 pools.unshift({
-                    token: {
-                        symbol: "XRD",
-                        name: "Radix",
-                        rri: "xrd_rr1qy5wfsfh",
-                        iconUrl: "https://assets.radixdlt.com/icons/icon-xrd-32x32.png",
-                    },
+                    token: Utils.XRD_TOKEN,
                     account: "",
                     heroImageUrl: "/hero-swap-DGC.png",
                 });

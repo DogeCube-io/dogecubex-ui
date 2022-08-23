@@ -145,7 +145,8 @@
                         </div>
                         <div class="row justify-content-center g-5">
                             <swap-widget v-if="swapModel" :params="swapModel" :symbol="symbol"
-                                         @on-update-model="onParamsUpdate" />
+                                         @on-update-model="onParamsUpdate" :pool-account="data.poolAccount || ''"
+                                         :token-rri="data.analytics && data.analytics.token.rri || ''" />
                         </div>
                     </div>
                 </div>

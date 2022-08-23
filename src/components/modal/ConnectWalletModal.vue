@@ -114,14 +114,14 @@ import Utils from "@/util/Utils";
 import CopyTrigger from "@/components/sub/CopyTrigger.vue";
 import ButtonCopy from "@/components/sub/ButtonCopy.vue";
 import IconDelete from "@/components/icons/IconDelete.vue";
+import { useWalletConnectionStore } from "@/stores/WalletConnectionStore";
 
 export default defineComponent({
     components: {IconDelete, ButtonCopy, CopyTrigger},
-    data() {
+    data: () => {
         return {
             mode: "",
             addedAccount: "",
-            zeusConnected: false,
 
             maxWidth: 0,
 
@@ -129,29 +129,22 @@ export default defineComponent({
             addrRegexp: "^rdx1[02-9AC-HJ-NP-Zac-hj-np-z]{54}[cgqsCGQS]{1}[02-9AC-HJ-NP-Zac-hj-np-z]{6}$",
         };
     },
-    async mounted() {
-        if (window.z3us && window.z3us.v1) {
-            const hasWallet = await window.z3us.v1.hasWallet();
-            if (hasWallet) {
-                if (await window.z3us.v1.isConnected()) {
-                    const selectedAddress = await window.z3us.v1.connect();
-                    if (selectedAddress === this.connectedWallet) {
-                        this.zeusConnected = true;
-                    }
-                }
-            }
-        }
+    mounted(): void {
+        this.updateZeusStatus();
     },
     computed: {
-        ActiveStateStore() {
+        ActiveStateStore(): ReturnType<typeof useActiveStateStore> {
             return useActiveStateStore();
         },
-        connectedWallet() {
-            return this.ActiveStateStore.connectedAccount;
+        WalletConnectionStore(): ReturnType<typeof useWalletConnectionStore> {
+            return useWalletConnectionStore();
+        },
+        connectedWallet(): string {
+            return this.ActiveStateStore.connectedAccount as string;
         },
         wallets() {
-            let accounts = this.ActiveStateStore.accountsArr;
-            const connected = this.connectedWallet;
+            let accounts = this.ActiveStateStore.accountsArr as string[];
+            const connected = this.connectedWallet as string;
             if (connected) {
                 accounts = accounts.filter(e => e !== connected);
             }
@@ -161,15 +154,20 @@ export default defineComponent({
         zeusDetected() {
             return window.z3us && window.z3us.v1;
         },
+        zeusConnected() {
+            return this.connectedWallet && this.connectedWallet === this.WalletConnectionStore.zeus;
+        },
 
     },
     methods: {
-        connectWallet(account: string) {
+        connectWallet(account: string): void {
             this.ActiveStateStore.connectAccount(account);
+            this.updateZeusStatus();
         },
-        disconnect(account: string) {
+        disconnect(account: string): void {
             if (this.connectedWallet === account) {
                 this.ActiveStateStore.connectAccount("");
+                this.updateZeusStatus();
             }
         },
         deleteWallet(account: string) {
@@ -183,9 +181,24 @@ export default defineComponent({
                     return;
                 }
                 const selectedAddress = await window.z3us.v1.connect();
-                this.zeusConnected = !!selectedAddress;
+                this.WalletConnectionStore.setZeus(selectedAddress);
                 if (selectedAddress) {
                     this.connectWallet(selectedAddress);
+                }
+            }
+        },
+        async updateZeusStatus(): Promise<void> {
+            if (window.z3us && window.z3us.v1) {
+                const hasWallet = await window.z3us.v1.hasWallet();
+                if (hasWallet) {
+                    if (await window.z3us.v1.isConnected()) {
+                        const selectedAddress = await window.z3us.v1.connect();
+                        this.WalletConnectionStore.setZeus(selectedAddress || "");
+                    } else {
+                        this.WalletConnectionStore.setZeus("");
+                    }
+                } else {
+                    this.WalletConnectionStore.setZeus("");
                 }
             }
         },
@@ -204,7 +217,7 @@ export default defineComponent({
             }
         },
 
-        shortPrevAddress(addr: string) {
+        shortPrevAddress(addr: string): string {
             const shortAddr = Utils.shortAddress(addr);
             this.updateMaxWalletWidth(shortAddr);
             setTimeout(() => {

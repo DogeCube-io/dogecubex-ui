@@ -1,5 +1,5 @@
 <template>
-    <button class="btn btn-sm link-dark connect-wallet" @click.stop="connectWalletClick" data-bs-toggle="modal"
+    <button class="btn btn-sm link-dark connect-wallet" data-bs-toggle="modal"
             data-bs-target="#connect-wallet-modal">
         <icon-connect-wallet class="fs-5" :class="{'text-success': !!connectedAccount}" />
         <span class="d-none d-md-inline-block ms-1 fs-6">
@@ -10,35 +10,68 @@
             <span v-if="connectedAccount">&nbsp;{{ addressTiny(connectedAccount) }}</span>
             <span v-else> Connect</span>
         </span>
-
     </button>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, type UnwrapRef } from "vue";
 import IconConnectWallet from "@/components/icons/IconConnectWallet.vue";
 import { useActiveStateStore } from "@/stores/ActiveStateStore";
 import Utils from "@/util/Utils";
+import { useAccountInfoStore } from "@/stores/AccountInfoStore";
+import { useSwapEventStore } from "@/stores/SwapEventStore";
+import type { TokenSwapDto } from "../../env";
 
 
 export default defineComponent({
     components: {IconConnectWallet},
     data() {
-        return {};
+        return {
+            statusInterval: null as ReturnType<typeof setInterval> | null,
+        };
     },
-    props: {},
+    mounted() {
+        this.loadAccountInfo();
+        this.ActiveStateStore.subscribeConnectedAccount(this.onAccountChange);
+        this.SwapEventStore.subscribe(this.onNewSwap);
+
+        this.statusInterval = setInterval(this.loadAccountInfo, 30000);
+        window.addEventListener('focus', this.loadAccountInfo);
+    },
+    unmounted() {
+        if (this.statusInterval) {
+            clearInterval(this.statusInterval);
+            this.statusInterval = null;
+        }
+        window.removeEventListener('focus', this.loadAccountInfo);
+    },
     computed: {
-        ActiveStateStore() {
+        ActiveStateStore(): ReturnType<typeof useActiveStateStore> {
             return useActiveStateStore();
         },
+        AccountInfoStore() {
+            return useAccountInfoStore();
+        },
+        SwapEventStore() {
+            return useSwapEventStore();
+        },
 
-        connectedAccount() {
-            return this.ActiveStateStore.connectedAccount;
-        }
+        connectedAccount(): string {
+            return this.ActiveStateStore.connectedAccount as string;
+        },
     },
     methods: {
-        connectWalletClick() {
-            // noop
+        loadAccountInfo():void {
+            this.AccountInfoStore.loadAccountInfo(this.connectedAccount);
+        },
+        onAccountChange(state: UnwrapRef<{ connectedAccount: string | null }>): void {
+            this.AccountInfoStore.loadAccountInfo(state.connectedAccount || "");
+        },
+        onNewSwap(state: UnwrapRef<{ lastSwap: TokenSwapDto }>) {
+            const acc = this.connectedAccount;
+            if (acc && state.lastSwap && state.lastSwap.user === acc) {
+                this.loadAccountInfo();
+            }
         },
 
         addressHuge(addr: string) {

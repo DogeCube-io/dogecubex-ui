@@ -32,7 +32,9 @@
             <div class="col-lg-6 mx-auto container ">
                 <div class="row justify-content-center g-5">
                     <swap-widget v-if="queryParams" :params="queryParams"
-                                 @on-update-model="onParamsUpdate" :symbol="selectedPoolSymbol" />
+                                 @on-update-model="onParamsUpdate" :symbol="selectedPoolSymbol"
+                                 :pool-account="selectedPool && selectedPool.account || ''"
+                                 :token-rri="selectedPool && selectedPool.token.rri || ''" />
                 </div>
             </div>
         </div>

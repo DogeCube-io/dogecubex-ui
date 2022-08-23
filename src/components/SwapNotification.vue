@@ -24,8 +24,8 @@ export default defineComponent({
             router: null as never as Router,
         }
     },
-    mounted() {
-        (this as any).router = useRouter();
+    mounted(): void {
+        this.router = useRouter() as any;
         this.toast = useToast();
         this.SwapEventStore.subscribe(this.processSwap);
     },

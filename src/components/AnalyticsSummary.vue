@@ -92,8 +92,8 @@ export default defineComponent({
         SettingsStore() {
             return useSettingsStore();
         },
-        currency() {
-            return (this as any).SettingsStore.analyticsCurrency;
+        currency(): string {
+            return this.SettingsStore.analyticsCurrency;
         },
     },
     watch: {},
