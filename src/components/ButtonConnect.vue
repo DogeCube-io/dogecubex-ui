@@ -4,7 +4,7 @@
         <icon-connect-wallet class="fs-5" :class="{'text-success': !!connectedAccount}" />
         <span class="d-none d-md-inline-block ms-1 fs-6">
             <span v-if="connectedAccount">&nbsp;{{ addressMedium(connectedAccount) }}</span>
-            <span v-else> "Connect" Wallet</span>
+            <span v-else> Connect Wallet</span>
         </span>
         <span class="d-md-none ms-1 fs-6">
             <span v-if="connectedAccount">&nbsp;{{ addressTiny(connectedAccount) }}</span>
@@ -70,7 +70,10 @@ export default defineComponent({
         onNewSwap(state: UnwrapRef<{ lastSwap: TokenSwapDto }>) {
             const acc = this.connectedAccount;
             if (acc && state.lastSwap && state.lastSwap.user === acc) {
-                this.loadAccountInfo();
+                // delay loading so that the transaction gets finalized and affects the balance
+                setTimeout(()=>{
+                    this.loadAccountInfo();
+                }, 850);
             }
         },
 

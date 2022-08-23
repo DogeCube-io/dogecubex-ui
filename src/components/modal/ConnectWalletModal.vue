@@ -3,12 +3,13 @@
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">"Connect" Wallet</h5>
+                    <h5 class="modal-title">Connect Wallet</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div v-if="connectedWallet" class="mb-1">
-                        <h6>Currently "connected": </h6>
+                        <h6 v-if="zeusConnected">Currently connected: </h6>
+                        <h6 v-else>Currently "connected": </h6>
                         <span class="float-end" style="margin-top: -15px;">
                                 <button class="btn btn-danger" @click.stop="disconnect(connectedWallet)">
                                     Disconnect
