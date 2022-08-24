@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { RemovableRef, useLocalStorage } from "@vueuse/core";
 import type { UnwrapRef } from "vue-demi";
+import type { AnalyticsSort } from "../../env";
 
 // TODO: remove after migration
 const getOldSettingsString = (prop: string): string => {
@@ -26,9 +27,18 @@ export const useActiveStateStore = defineStore({
 
         connectedAccount: useLocalStorage("d3x.ActiveState.connectedAccount", null as string | null) as RemovableRef<string | null>,
         accounts: useLocalStorage("d3x.ActiveState.accounts", ""),
+
+        analyticsSort: useLocalStorage("d3x.ActiveState.analyticsSort", ""),
     }),
     getters: {
         accountsArr: (state) => JSON.parse(state.accounts || "[]") as string[],
+        analyticsSortOrder: (state) => {
+            const analyticsSort = state.analyticsSort;
+            return (analyticsSort ? {
+                field: analyticsSort.split("|")[0],
+                asc: analyticsSort.endsWith("|asc")
+            } : null) as AnalyticsSort | null;
+        },
     },
     actions: {
         setState(symbol: string, mode: string) {
@@ -87,5 +97,11 @@ export const useActiveStateStore = defineStore({
                 }
             });
         },
+        setAnalyticsSort(sort: AnalyticsSort) {
+            this.$patch({
+                analyticsSort: sort ? sort.field + (sort.asc ? "|asc" : "|desc") : "",
+            });
+        }
+
     },
 });

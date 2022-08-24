@@ -3,19 +3,29 @@
         <thead>
         <tr>
             <th scope="col">&nbsp;</th>
-            <th scope="col" class="text-start">Name</th>
-            <th scope="col" colspan="2">Liquidity</th>
-            <th scope="col">Volume (24h), {{ loadedCurrency }}</th>
-            <th scope="col">
-                <icon-arrow-down />
+            <th-sort class="text-start" field="name" :sort-order="sortOrder" @updateSort="updateSort">Name</th-sort>
+            <th-sort colspan="2" field="liquidity" :sort-order="sortOrder" @updateSort="updateSort">Liquidity</th-sort>
+            <th-sort field="volume24h" :sort-order="sortOrder" @updateSort="updateSort">
+                Volume (24h), {{ loadedCurrency }}
+            </th-sort>
+            <th-sort field="volume7d" :sort-order="sortOrder" @updateSort="updateSort">
                 Volume (7d), {{ loadedCurrency }}
-            </th>
+            </th-sort>
             <th scope="col">&nbsp;</th>
-            <th scope="col">Price, {{ loadedCurrency }}</th>
-            <th scope="col"><span>Δ</span><sub>Price</sub> (24h)</th>
-            <th scope="col"><span>Δ</span><sub>Price</sub> (7d)</th>
-            <th scope="col">FDV <span data-bs-toggle="tooltip" data-bs-placement="left" title="Fully Diluted Valuation"><icon-question /></span>,
+            <th-sort field="price" :sort-order="sortOrder" @updateSort="updateSort">
+                Price, {{ loadedCurrency }}
+            </th-sort>
+            <th-sort field="priceChange24h" :sort-order="sortOrder" @updateSort="updateSort">
+                <span>Δ</span><sub>Price</sub> (24h)
+            </th-sort>
+            <th-sort field="priceChange7d" :sort-order="sortOrder" @updateSort="updateSort">
+                <span>Δ</span><sub>Price</sub> (7d)
+            </th-sort>
+            <th-sort field="valuation" :sort-order="sortOrder" @updateSort="updateSort"
+            >FDV <span data-bs-toggle="tooltip" data-bs-placement="left" title="Fully Diluted Valuation"><icon-question /></span>,
                 {{ loadedCurrency }}
+            </th-sort>
+            <th scope="col">
             </th>
         </tr>
         </thead>
@@ -25,7 +35,8 @@
             <td class="text-start">
                 <RouterLink class="link-dark d3x-no-underline"
                             :to="{ path: '/info', query: {symbol: token.token.symbol} }">
-                    <img class="me-1" style="width:24px;height:24px;" :alt="token.token.symbol" :src="token.token.iconUrl">
+                    <img class="me-1" style="width:24px;height:24px;" :alt="token.token.symbol"
+                         :src="token.token.iconUrl">
                     <span>{{ token.token.name }}</span>
                 </RouterLink>
             </td>
@@ -58,8 +69,7 @@
 </template>
 
 <script lang="ts">
-import type { TokenAnalyticsDto, TokenSwapDto } from "../../env";
-import IconArrowDown from "@/components/icons/IconArrowDown.vue";
+import type { AnalyticsSort, TokenAnalyticsDto, TokenSwapDto } from "../../env";
 import IconQuestion from "@/components/icons/IconQuestion.vue";
 import Utils from "@/util/Utils";
 import PriceChange from "@/components/sub/PriceChange.vue";
@@ -70,13 +80,22 @@ import { useSwapEventStore } from "@/stores/SwapEventStore";
 import type { UnwrapRef } from "vue";
 import { defineComponent } from "vue";
 import { useSettingsStore } from "@/stores/SettingsStore";
+import { useActiveStateStore } from "@/stores/ActiveStateStore";
+import ThSort from "@/components/sub/ThSort.vue";
+
+const initialSortAsc = {
+    "name": true
+} as Record<string, boolean | null>;
+
+const defaultSort = {field: "volume7d", asc: false} as AnalyticsSort;
 
 export default defineComponent({
-    components: {IconGraphUp, PriceChange, IconQuestion, IconArrowDown},
+    components: {ThSort, IconGraphUp, PriceChange, IconQuestion},
     data() {
         return {
             loadedCurrency: "XRD",
             data: [] as TokenAnalyticsDto[],
+            sortOrder: defaultSort,
 
             statusInterval: null as ReturnType<typeof setInterval> | null,
         }
@@ -86,6 +105,8 @@ export default defineComponent({
         tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new Tooltip(tooltipTriggerEl);
         })
+
+        this.sortOrder = this.ActiveStateStore.analyticsSortOrder || defaultSort;
         this.loadData();
 
         this.SwapEventStore.subscribe(this.onNewSwap);
@@ -104,8 +125,24 @@ export default defineComponent({
     methods: {
         async loadData() {
             const currency = this.currency;
-            this.data = await API.get(`/api/analytics/tokens.json?currency=${currency}`) as TokenAnalyticsDto[] || [];
+            const data = await API.get(`/api/analytics/tokens.json?currency=${currency}`) as (TokenAnalyticsDto & Record<string, number>)[] || [];
+            if (this.sortOrder.field !== defaultSort.field || this.sortOrder.asc !== defaultSort.asc) {
+                this.sortData(data);
+            } else {
+                this.data = data;
+            }
             this.loadedCurrency = currency;
+        },
+        sortData(data: TokenAnalyticsDto[]) {
+            const sortField = this.sortOrder.field === "liquidity" ? "liquidityB" : this.sortOrder.field
+            const asc = this.sortOrder.asc;
+            (data as (TokenAnalyticsDto & Record<string, number>)[]).sort((a, b) => {
+                const val = sortField === "name"
+                    ? (a.token.name > b.token.name ? 1 : -1)
+                    : (a[sortField] as number - b[sortField] as number);
+                return asc ? val : -val;
+            });
+            this.data = data;
         },
         displayCurrency(amount: string | number) {
             return Utils.displayCurrency(amount);
@@ -119,8 +156,20 @@ export default defineComponent({
         onCurrencyChange(state: UnwrapRef<{ analyticsCurrency: string }>) {
             this.loadData();
         },
+        updateSort(field: string) {
+            const sortOrder = {
+                field: field,
+                asc: this.sortOrder.field === field ? !this.sortOrder.asc : !!initialSortAsc[field]
+            };
+            this.ActiveStateStore.setAnalyticsSort(sortOrder);
+            this.sortOrder = sortOrder;
+            this.sortData(this.data);
+        }
     },
     computed: {
+        ActiveStateStore() {
+            return useActiveStateStore();
+        },
         SwapEventStore() {
             return useSwapEventStore();
         },
@@ -136,5 +185,7 @@ export default defineComponent({
 </script>
 
 <style>
-
+#tokens th.sort:hover {
+    cursor: pointer;
+}
 </style>

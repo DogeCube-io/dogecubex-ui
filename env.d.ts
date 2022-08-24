@@ -26,6 +26,10 @@ declare type TokenInfoModel = {
     symbol?: string,
 }
 
+declare type AnalyticsSort = {
+    field: string,
+    asc: boolean,
+}
 
 
 /* DTO types */
