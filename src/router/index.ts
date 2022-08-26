@@ -13,6 +13,7 @@ import AnalyticsView from "@/views/AnalyticsView.vue";
 import NotFoundView from "@/views/NotFoundView.vue";
 import { useGlobalErrorStore } from "@/stores/GlobalErrorStore";
 import TokenDetailsView from "@/views/TokenDetailsView.vue";
+import BatchSendView from "@/views/BatchSendView.vue";
 
 function dogeRoute(route: RouteRecordRaw, pageName: string): RouteRecordWithTitle {
     const title = `DogeCubeX | ${pageName}`;
@@ -120,6 +121,13 @@ const router = createRouter({
                 name: "info",
                 component: TokenDetailsView,
             }, 'Info'),
+
+        dogeRoute(
+            {
+                path: "/tools/batch-send",
+                name: "batch-send",
+                component: BatchSendView,
+            }, 'Batch Send Transaction'),
 
 
         // last

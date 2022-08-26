@@ -148,7 +148,7 @@ export default defineComponent({
             const checked = target.checked;
             this.SettingsStore.setNotificationSounds(checked);
             if (checked && !target.disabled) {
-                const audio = new Audio("swap.mp3");
+                const audio = new Audio("/swap.mp3");
                 audio.play();
             }
         },

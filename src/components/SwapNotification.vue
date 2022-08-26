@@ -100,7 +100,7 @@ export default defineComponent({
                     rtl: false
                 });
                 if (this.SettingsStore.notificationSounds === "1") {
-                    new Audio('swap.mp3').play();
+                    new Audio('/swap.mp3').play();
                 }
                 // toast's progress works only when the tab is active.
                 // Clear old irrelevant notifications after 1 minute.
