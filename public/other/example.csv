@@ -1,0 +1,6 @@
+# here are formats that we support. The first line can be a CSV header or a comment like this. 3rd column can be a token RRI, if any of the rows doesn't have an RRI - you will be able to set it in UI later. For XRD, the RRI can be just "XRD"
+rdx1qspd0ge3xef9qp80phgckn4hxlgyxnjtgskphld9y94pffelmh6hqhq7waky7,1.5
+rdx1qspd0ge3x32v9an07c660lhd7mal99rsyn4k9glnwf84z5a99tef59g904j5e,2.11
+"rdx1qspd0ge3xldpylhj60367mpayewwlmnj07y5uj8dptd288xh7a6prqq22c6tz,300,XRD"
+"rdx1qspd0ge3xhh2lv3dv3dsrrdxazu9hwkzdk6fl8pp4jl7q5dyh3hcccc4224h4", "4000.0004","dgc_rr1qvnre767vp607yr9pqzqhlprg72q2ny5pj4agn53k0pqy6huxw"
+rdx1qspd0ge3xhrcgsc6kw9pyg058ktndgvgerdpr7zppc5vc4rdgu4mr3q46l0kq,"5000000.000005",XRD

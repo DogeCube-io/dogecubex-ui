@@ -16,10 +16,12 @@
                                 <p class="d3x-text-gray mt-3 text-start">
                                     1. Choose the account you want to use in Z3US<br>
                                     2. Connect Z3US wallet (in the header)<br>
-                                    3. Upload a csv file and press "Parse"<br>
-                                    4. Verify that it was imported properly<br>
-                                    5. Set the token RRI and (optional) message.<br>
-                                    6. Click "Send" and confirm in Z3US wallet.<br>
+                                    3. Upload a csv file (see <a href="/other/example.csv">example.csv</a>)<br>
+                                    4. If prompted, set the token RRI<br>
+                                    5. Verify that everything was imported properly<br>
+                                    5. (Optionally) set a message.<br>
+                                    6. Click "Send" to send the TX to Z3US<br>
+                                    7. Make sure to verify the last account/amount before clicking "Confirm".<br>
                                 </p>
                             </div>
                         </div>
@@ -28,14 +30,22 @@
                 </div>
                 <div class="row">
                     <div class="text-center my-3 col-12">
-                        <span>
-                            <span class="input-group d-inline">
-                                <input type="file" id="csvFile" accept=".csv" />
-                            </span>
-                            <button class="btn btn-success ms-3" @click.stop="parseCSV">
-                                Parse
-                            </button>
+                        <span class="me-4">
+                            CSV file:
                         </span>
+                        <span class="input-group d-inline">
+                                <input type="file" id="csvFile" accept=".csv" @change="parseCSV" />
+                            </span>
+                    </div>
+                </div>
+                <div v-if="anyRriMissing" class="row">
+                    <div class="col-lg-4"></div>
+                    <div class="col-lg-4 text-center">
+                        Token RRI:
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Token RRI"
+                                   v-model="tokenRri">
+                        </div>
                     </div>
                 </div>
                 <div class="row">
@@ -44,8 +54,9 @@
                             <thead>
                             <tr>
                                 <th scope="col">&nbsp;</th>
-                                <th scope="col">Account To</th>
+                                <th scope="col-2">Account To</th>
                                 <th scope="col">Amount</th>
+                                <th v-if="hasTokenRri" scope="col">Token RRI</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -53,19 +64,10 @@
                                 <td>{{ idx + 1 }}</td>
                                 <td>{{ action.account_to }}</td>
                                 <td>{{ action.amount }}</td>
+                                <td v-if="hasTokenRri" class="brake">{{ getRri(action) }}</td>
                             </tr>
                             </tbody>
                         </table>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-4"></div>
-                    <div class="col-lg-4 text-center">
-                        Token RRI:
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Token RRI"
-                                   v-model="tokenRri">
-                        </div>
                     </div>
                 </div>
                 <div class="row">
@@ -81,8 +83,9 @@
                     <div class="col-lg-4"></div>
                     <div class="col-lg-4 text-center">
                         From account:
-                        <div class="input-group">
-                            <span>{{ zeusConnected ? connectedWallet : "Please connect Z3US first" }}</span>
+                        <div class="input-group  mt-1">
+                            <span v-if="zeusConnected">{{ connectedWallet }}</span>
+                            <span v-else class="text-info">{{ "Please connect Z3US first" }}</span>
                         </div>
                         &nbsp;
                         <button class="btn btn-primary mt-2" @click.stop="onClickSend">
@@ -109,6 +112,7 @@ import { useWalletConnectionStore } from "@/stores/WalletConnectionStore";
 declare type SendActionModel = {
     account_to: string;
     amount: string;
+    rri?: string;
 };
 
 export default defineComponent({
@@ -118,6 +122,8 @@ export default defineComponent({
     data() {
         return {
             actions: [] as SendActionModel[],
+            hasTokenRri: false,
+            anyRriMissing: true,
             tokenRri: "xrd_rr1qy5wfsfh",
             message: "",
         }
@@ -132,35 +138,86 @@ export default defineComponent({
 
                 reader.onload = (e) => {
                     const text = e?.target?.result;
-                    this.doParseCSV(text as string);
+                    this.doParseCSV(text as string, csvFile);
                 };
 
                 reader.readAsText(input);
             }
         },
-        doParseCSV(text: string) {
-            console.log(text);
+        doParseCSV(text: string, csvFile: HTMLInputElement) {
             if (text) {
                 const lines = text.split(new RegExp("\\r?\\n"));
+                let line = "";
                 try {
                     const actions = [];
-                    const hasHeader = !lines[0].trim().startsWith("rdx1");
+                    let hasRri = false;
+                    let anyRriMissing = false;
+                    const hasHeader = !this.getElements(lines[0])[0].startsWith("rdx1");
                     const start = hasHeader ? 1 : 0;
                     for (let i = start; i < lines.length; i++) {
-                        const parts = lines[i].trim().split(",");
-                        actions.push({
-                            account_to: parts[0].trim(),
-                            amount: parts[1].trim()
-                        });
+                        line = lines[i];
+                        if (!line && i > 0) { // ignore empty lines in the end
+                            break;
+                        }
+                        const elements = this.getElements(line);
+
+                        const action: SendActionModel = {
+                            account_to: elements[0].trim(),
+                            amount: elements[1].trim().split(",").join("").split(" ").join("")
+                        };
+                        if (elements.length > 2 && elements[2].trim()) {
+                            action.rri = elements[2].trim();
+                            hasRri = true;
+                        } else {
+                            anyRriMissing = true;
+                        }
+                        actions.push(action);
                     }
                     this.actions = actions;
+                    this.hasTokenRri = hasRri;
+                    this.anyRriMissing = anyRriMissing;
                 } catch (e) {
                     this.actions = [];
+                    this.hasTokenRri = false;
+                    this.anyRriMissing = true;
+                    alert("Can't parse line: " + line);
                     alert(e);
+                    csvFile.value = "";
                 }
             } else {
                 this.actions = [];
+                this.hasTokenRri = false;
+                this.anyRriMissing = true;
             }
+        },
+        getElements(line: string): string[] {
+            // remove double quotes - either whole line can be enclosed, or each individual cell
+            const parts = line.trim().split(",");
+            let elems: string[] = [];
+            let stack: string[] = [];
+            for (let i = 0; i < parts.length; i++) {
+                const part = parts[i].trim();
+                if (part.startsWith('"')) {
+                    if (part.endsWith('"')) {
+                        elems.push(part.substring(1, part.length - 1));
+                    } else {
+                        stack.push(part.substring(1));
+                    }
+                } else if (part.endsWith('"')) {
+                    stack.push(part.substring(0, part.length - 1));
+                    if (i === parts.length - 1 && elems.length === 0) {
+                        elems = stack
+                    } else {
+                        elems.push(stack.join(","));
+                        stack = [];
+                    }
+                } else if (stack.length > 0) {
+                    stack.push(part);
+                } else {
+                    elems.push(part);
+                }
+            }
+            return elems;
         },
         async onClickSend() {
             if (this.zeusConnected) {
@@ -178,7 +235,7 @@ export default defineComponent({
                             },
                             amount: {
                                 token_identifier: {
-                                    rri: this.tokenRri === "XRD" ? Utils.XRD_TOKEN.rri : this.tokenRri,
+                                    rri: this.getRri(action)
                                 },
                                 value: Utils.toAttos(action.amount),
                             },
@@ -194,6 +251,10 @@ export default defineComponent({
                     await window.z3us.v1.submitTransaction(tx);
                 }
             }
+        },
+        getRri(action: SendActionModel) {
+            const rri = action.rri || this.tokenRri;
+            return rri === "XRD" ? Utils.XRD_TOKEN.rri : rri;
         },
 
     },
