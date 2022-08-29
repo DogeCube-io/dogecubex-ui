@@ -5,7 +5,11 @@
             <br>
             <div class="mx-auto container d3x-text-white">
                 <div class="my-3">
-                    <h4 class="text-white text-center">Analytics</h4>
+                    <h4 class="text-white text-center">Analytics
+                        <span style="width: 0;" class="float-end">
+                            <currency-switcher class="float-end" />
+                        </span>
+                    </h4>
                 </div>
                 <div class="shadow-sm mx-auto">
                     <analytics-summary />
@@ -55,9 +59,10 @@ import AnalyticsTokens from "@/components/AnalyticsTokens.vue";
 import StatusWidget from "@/components/StatusWidget.vue";
 import AnalyticsSwaps from "@/components/AnalyticsSwaps.vue";
 import { defineComponent } from "vue";
+import CurrencySwitcher from "@/components/sub/CurrencySwitcher.vue";
 
 export default  defineComponent({
-    components: {AnalyticsSwaps, StatusWidget, AnalyticsTokens, AnalyticsSummary, TheHeader},
+    components: {CurrencySwitcher, AnalyticsSwaps, StatusWidget, AnalyticsTokens, AnalyticsSummary, TheHeader},
     data() {
         return {};
     },

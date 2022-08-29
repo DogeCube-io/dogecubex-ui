@@ -47,7 +47,13 @@
                                 <a class="float-end link-dark " target="_blank"
                                    :href="`https://explorer.radixdlt.com//#/tokens/${data.analytics.token.rri}`"><icon-external-link /></a>
                             </span>
+                            <span style="width: 0; margin-left: -150%;" class="row mt-1 float-start">
+                                <currency-switcher class="float-start" />
+                            </span>
                         </h5>
+                        <span style="" class="row mt-2 d-sm-none float-end">
+                            <currency-switcher class="float-end" />
+                        </span>
                     </div>
                 </div>
                 <div class="row text-center" v-if="data.symbol">
@@ -213,9 +219,11 @@ import IconBellOn from "@/components/icons/IconBellOn.vue";
 import type { PoolInfoDto } from "../../env";
 import PoolSelector from "@/components/PoolSelector.vue";
 import CopyTrigger from "@/components/sub/CopyTrigger.vue";
+import CurrencySwitcher from "@/components/sub/CurrencySwitcher.vue";
 
 export default  defineComponent({
     components: {
+        CurrencySwitcher,
         CopyTrigger,
         PoolSelector,
         IconBellOn,
