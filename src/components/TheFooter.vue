@@ -1,5 +1,5 @@
 <template>
-    <footer id="footer">
+    <footer v-if="showFooter" id="footer">
         <div>
             <div v-if="showSocials" style="display: flex" class="justify-content-center contact-icons">
                 <span>Community: </span>
@@ -74,6 +74,10 @@ export default defineComponent({
         showGecko() {
             const route = useRoute();
             return ["/tokens", "/chart", "/analytics", "/info"].indexOf(route.path) > -1;
+        },
+        showFooter() {
+            const route = useRoute();
+            return route.name !== "chart-print";
         },
     }
 });

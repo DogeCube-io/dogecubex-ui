@@ -3,6 +3,7 @@ import type { TokenInfoDto } from "../../env";
 export default class Utils {
     static formatLong = new Intl.NumberFormat('en-US', {maximumSignificantDigits: 12});
     static formatShort = new Intl.NumberFormat('en-US', {maximumSignificantDigits: 6});
+    static formatXs = new Intl.NumberFormat('en-US', {maximumSignificantDigits: 3});
     static XRD_TOKEN: TokenInfoDto = {
         symbol: "XRD",
         name: "Radix",
@@ -48,6 +49,9 @@ export default class Utils {
         return addr.substring(0, 2) + ".." + addr.substring(addr.length - 6);
     }
 
+    static displayCurrencyXs(amount: string | number): string {
+        return this.formatXs.format(Number(amount));
+    }
 
     static displayCurrencyShort(amount: string | number): string {
         return this.formatShort.format(Number(amount));
@@ -63,6 +67,11 @@ export default class Utils {
 
     static displayCurrency0(amount: string | number): string {
         return this.formatLong.format(Math.round(Number(amount))).split(".")[0];
+    }
+
+    static displayCurrencySmart(amount: string | number) {
+        const amt = Number(amount);
+        return amt && amt < 100 ? Utils.displayCurrencyXs(amt) : Utils.displayCurrency0(amount);
     }
 
     static str(amount: number): string {

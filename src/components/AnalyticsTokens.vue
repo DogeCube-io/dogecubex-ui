@@ -4,17 +4,10 @@
         <tr>
             <th scope="col">&nbsp;</th>
             <th-sort class="text-start" field="name" :sort-order="sortOrder" @updateSort="updateSort">Name</th-sort>
-            <th-sort colspan="2" field="liquidity" :sort-order="sortOrder" @updateSort="updateSort">Liquidity</th-sort>
-            <th-sort field="volume24h" :sort-order="sortOrder" @updateSort="updateSort">
-                Volume (24h), {{ loadedCurrency }}
-            </th-sort>
-            <th-sort field="volume7d" :sort-order="sortOrder" @updateSort="updateSort">
-                Volume (7d), {{ loadedCurrency }}
-            </th-sort>
-            <th scope="col">&nbsp;</th>
             <th-sort field="price" :sort-order="sortOrder" @updateSort="updateSort">
                 Price, {{ loadedCurrency }}
             </th-sort>
+            <th scope="col">&nbsp;</th>
             <th-sort field="priceChange24h" :sort-order="sortOrder" @updateSort="updateSort">
                 <span>Δ</span><sub>Price</sub> (24h)
             </th-sort>
@@ -25,8 +18,13 @@
             >FDV <span data-bs-toggle="tooltip" data-bs-placement="left" title="Fully Diluted Valuation"><icon-question /></span>,
                 {{ loadedCurrency }}
             </th-sort>
-            <th scope="col">
-            </th>
+            <th-sort field="volume24h" :sort-order="sortOrder" @updateSort="updateSort">
+                Volume (24h), {{ loadedCurrency }}
+            </th-sort>
+            <th-sort field="volume7d" :sort-order="sortOrder" @updateSort="updateSort">
+                Volume (7d), {{ loadedCurrency }}
+            </th-sort>
+            <th-sort colspan="2" field="liquidity" :sort-order="sortOrder" @updateSort="updateSort">Liquidity</th-sort>
         </tr>
         </thead>
         <tbody>
@@ -40,19 +38,15 @@
                     <span>{{ token.token.name }}</span>
                 </RouterLink>
             </td>
-            <td>{{ displayCurrency0(token.liquidityA) + ' ' + token.token.symbol }}</td>
-            <td>{{ displayCurrency0(token.liquidityB) + ' XRD' }}</td>
-            <td>{{ displayCurrency0(token.volume24h) }}</td>
-            <td>{{ displayCurrency0(token.volume7d) }}</td>
+            <td>
+                <RouterLink class="text-decoration-none" :to="{ path: '/swap', query: {to: token.token.symbol} }">
+                    {{ displayCurrency(token.price) }}
+                </RouterLink>
+            </td>
             <td class="tiny">
                 <RouterLink class="btn btn-outline-secondary link-dark btn-sm d3x-fs-7"
                             :to="{ path: '/chart', query: {symbol: token.token.symbol} }">
                     <icon-graph-up />
-                </RouterLink>
-            </td>
-            <td>
-                <RouterLink class="text-decoration-none" :to="{ path: '/swap', query: {to: token.token.symbol} }">
-                    {{ displayCurrency(token.price) }}
                 </RouterLink>
             </td>
             <td>
@@ -63,6 +57,11 @@
             </td>
 
             <td>{{ displayCurrency0(token.valuation) }}</td>
+            <td>{{ displayCurrency0(token.volume24h) }}</td>
+            <td>{{ displayCurrency0(token.volume7d) }}</td>
+
+            <td>{{ displayCurrencySmart(token.liquidityA) + ' ' + token.token.symbol }}</td>
+            <td>{{ displayCurrency0(token.liquidityB) + ' XRD' }}</td>
         </tr>
         </tbody>
     </table>
@@ -149,6 +148,9 @@ export default defineComponent({
         },
         displayCurrency0(amount: string | number) {
             return Utils.displayCurrency0(amount);
+        },
+        displayCurrencySmart(amount: string | number) {
+            return Utils.displayCurrencySmart(amount);
         },
         onNewSwap(state: UnwrapRef<{ lastSwap: TokenSwapDto }>) {
             this.loadData();

@@ -1,0 +1,5 @@
+table td > span[class*=' price-axis-currency-label-text-'],
+table td > span[class^='price-axis-currency-label-text-'] {
+    color: limegreen!important;
+    font-size: 18px;
+}

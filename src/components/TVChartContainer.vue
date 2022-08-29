@@ -134,7 +134,6 @@ export default defineComponent({
             } as ChartingLibraryWidgetOptions;
 
             if (compact) {
-                // widgetOptions.preset = "mobile";
                 if (!widgetOptions.disabled_features) {
                     widgetOptions.disabled_features = [];
                 }

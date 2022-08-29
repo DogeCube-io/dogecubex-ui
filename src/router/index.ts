@@ -14,6 +14,7 @@ import NotFoundView from "@/views/NotFoundView.vue";
 import { useGlobalErrorStore } from "@/stores/GlobalErrorStore";
 import TokenDetailsView from "@/views/TokenDetailsView.vue";
 import BatchSendView from "@/views/BatchSendView.vue";
+import ChartPrintView from "@/views/ChartPrintView.vue";
 
 function dogeRoute(route: RouteRecordRaw, pageName: string): RouteRecordWithTitle {
     const title = `DogeCubeX | ${pageName}`;
@@ -128,6 +129,12 @@ const router = createRouter({
                 name: "batch-send",
                 component: BatchSendView,
             }, 'Batch Send Transaction'),
+        dogeRoute(
+            {
+                path: "/tools/chart-print",
+                name: "chart-print",
+                component: ChartPrintView,
+            }, 'ChartPrint'),
 
 
         // last

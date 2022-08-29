@@ -67,7 +67,7 @@
                             <div class="row">
                                 <span v-if="data.analytics.liquidityA">
                                     <code class="">{{
-                                            displayCurrency0(data.analytics.liquidityA * data.analytics.price * 2)
+                                            displayCurrencySmart(data.analytics.liquidityA * data.analytics.price * 2)
                                         }}</code> <span> USD</span>
                                 </span>
                                 <span v-else-if="data.symbol === 'XRD'">
@@ -82,7 +82,7 @@
                             <div class="row">
                                 <span v-if="data.analytics.liquidityA">
                                     <code class="">{{
-                                            displayCurrency0(data.analytics.liquidityA)
+                                            displayCurrencySmart(data.analytics.liquidityA)
                                         }}</code> <span> {{ data.symbol }}</span>
                                 </span>
                                 <span>
@@ -337,6 +337,10 @@ export default  defineComponent({
         displayCurrency0(amount: string | number) {
             return Utils.displayCurrency0(amount);
         },
+        displayCurrencySmart(amount: string | number) {
+            return Utils.displayCurrencySmart(amount);
+        },
+
     },
     computed: {
         util() {

@@ -15,17 +15,25 @@ export default defineComponent({
         };
     },
     mounted() {
-        this.fetchData();
+        // delay to get a proper route after reloading the page (instead of "/")
+        setTimeout(() => {
+            this.fetchData();
+        });
     },
     computed: {
         AmmConfigStore() {
             return useAmmConfigStore();
         },
+        shouldLoad() {
+            return this.$route.path !== "/tools/chart-print";
+        },
     },
     methods: {
         fetchData(): void {
-            this.wsConnector.connect();
-            this.AmmConfigStore.loadConfig();
+            if (this.shouldLoad) {
+                this.wsConnector.connect();
+                this.AmmConfigStore.loadConfig();
+            }
         }
     }
 });

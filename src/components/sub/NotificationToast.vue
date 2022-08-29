@@ -52,9 +52,6 @@ export default defineComponent({
         displayCurrency(amount: string | number) {
             return Utils.displayCurrency(amount);
         },
-        displayCurrency0(amount: string | number) {
-            return Utils.displayCurrency0(amount);
-        },
     }
 });
 </script>
