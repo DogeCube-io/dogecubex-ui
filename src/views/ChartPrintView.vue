@@ -32,6 +32,7 @@ export default defineComponent({
             interval: "60",
             width: "1280",
             height: "720",
+            zoom: "1",
 
         };
     },
@@ -41,6 +42,7 @@ export default defineComponent({
         this.interval = this.$route.query.interval as string || this.interval;
         this.width = this.$route.query.width as string || this.width;
         this.height = this.$route.query.height as string || this.height;
+        this.zoom = this.$route.query.zoom as string || this.zoom;
 
         this.initChart();
 
@@ -63,6 +65,7 @@ export default defineComponent({
     },
     methods: {
         initChart() {
+            /** In the lib, do: find "this._updateLoadingState,700", replace with "this._updateLoadingState,200" */
             let userId = window.localStorage["d3x.tv_user_id"] || "";
             if (!userId) {
                 if (crypto && crypto.randomUUID) {
@@ -166,6 +169,56 @@ export default defineComponent({
                     this.updateTvCurrencyBtn();
                 });
 
+
+                const zoomOut = () => {
+                    try {
+                        const element = (tvWidget as any)._iFrame.contentDocument.getElementsByClassName("chart-gui-wrapper")[0];
+                        const box = element.getBoundingClientRect();
+                        const clientX = box.left + box.width - 64;
+                        const clientY = box.top + box.height / 2;
+                        const target = element.ownerDocument.elementFromPoint(clientX, clientY) as Element;
+
+                        for (let e = target; e; e = e.parentElement as Element) {
+                            if (e === element) {
+                                target.dispatchEvent(new MouseEvent('mouseover', {
+                                    view: window,
+                                    bubbles: true,
+                                    cancelable: true,
+                                    clientX: clientX,
+                                    clientY: clientY
+                                }));
+                                target.dispatchEvent(new MouseEvent('mousemove', {
+                                    view: window,
+                                    bubbles: true,
+                                    cancelable: true,
+                                    clientX: clientX,
+                                    clientY: clientY
+                                }));
+                                target.dispatchEvent(new WheelEvent('wheel', {
+                                    view: window,
+                                    ctrlKey: true,
+                                    bubbles: true,
+                                    cancelable: true,
+                                    clientX: clientX,
+                                    clientY: clientY,
+                                    deltaY: -100
+                                }));
+                                return;
+                            }
+                        }
+
+                    } catch (e) {
+                        console.log(e);
+                    }
+                };
+
+                const zoom = Number(this.zoom);
+
+                for (let i=0; i<zoom; i++) {
+                    setTimeout(function () {
+                        zoomOut();
+                    }, i * 15);
+                }
             });
         },
         updateTvCurrencyBtn() {

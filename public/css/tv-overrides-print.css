@@ -3,3 +3,9 @@ table td > span[class^='price-axis-currency-label-text-'] {
     color: limegreen!important;
     font-size: 18px;
 }
+
+.chart-markup-table.price-axis-container div div div[class*=' gear-'],
+.chart-markup-table.price-axis-container div div div[class^='gear-'] {
+    display: none;
+}
+
