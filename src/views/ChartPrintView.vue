@@ -125,8 +125,9 @@ export default defineComponent({
                 overrides: {
                     "scalesProperties.showStudyLastValue": false,
                     "mainSeriesProperties.highLowAvgPrice.highLowPriceLabelsVisible": true,
+                    "paneProperties.legendProperties.showSeriesOHLC": false,
                 },
-                custom_css_url: "/css/tv-overrides-print.css?_v=1",
+                custom_css_url: "/css/tv-overrides-print.css?_v=2",
                 theme: "Dark",
             } as ChartingLibraryWidgetOptions;
 
@@ -168,6 +169,19 @@ export default defineComponent({
                     this.tvCurrencyBtn = tvWidget.createButton();
                     this.updateTvCurrencyBtn();
                 });
+
+                setTimeout(() => {
+                    try {
+                        const elements = (tvWidget as any)._iFrame.contentDocument.getElementsByClassName("apply-overflow-tooltip");
+                        for (const element of elements) {
+                            if (element.innerText.indexOf("SMA 9") > -1) {
+                                element.innerText = element.innerText.replace("SMA 9", " ").replace("close 0", " ");
+                            }
+                        }
+                    } catch (e) {
+                        console.log(e);
+                    }
+                }, 200);
 
 
                 const zoomOut = () => {
@@ -214,7 +228,7 @@ export default defineComponent({
 
                 const zoom = Number(this.zoom);
 
-                for (let i=0; i<zoom; i++) {
+                for (let i = 0; i < zoom; i++) {
                     setTimeout(function () {
                         zoomOut();
                     }, i * 15);

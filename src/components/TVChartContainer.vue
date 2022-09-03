@@ -204,10 +204,6 @@ export default defineComponent({
                 }
             }
 
-            function resetChart() {
-                localStorage.removeItem("tradingview.chart.lastUsedTimeBasedResolution");
-            }
-
             tvWidget.onChartReady(() => {
                 initChartIndicators();
                 tvWidget.activeChart().onSymbolChanged().subscribe(null, () => {

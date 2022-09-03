@@ -9,3 +9,19 @@ table td > span[class^='price-axis-currency-label-text-'] {
     display: none;
 }
 
+.chart-gui-wrapper div[class*=' objectsTreeCanBeShown-'],
+.chart-gui-wrapper div[class^='objectsTreeCanBeShown-'] {
+    display: none;
+}
+
+.chart-gui-wrapper div[class*=' onlyOneButtonCanBeStick-'],
+.chart-gui-wrapper div[class^='onlyOneButtonCanBeStick-'] {
+    flex-direction: unset;
+}
+
+.chart-gui-wrapper div[class*=' onlyOneButtonCanBeStick-'] div[class^='valuesWrapper-'],
+.chart-gui-wrapper div[class^='onlyOneButtonCanBeStick-'] div[class^='valuesWrapper-']{
+    align-self: unset;
+}
+
+
