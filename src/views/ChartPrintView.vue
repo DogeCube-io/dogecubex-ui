@@ -33,6 +33,7 @@ export default defineComponent({
             width: "1280",
             height: "720",
             zoom: "1",
+            precision: "6",
 
         };
     },
@@ -43,6 +44,7 @@ export default defineComponent({
         this.width = this.$route.query.width as string || this.width;
         this.height = this.$route.query.height as string || this.height;
         this.zoom = this.$route.query.zoom as string || this.zoom;
+        this.precision = this.$route.query.precision as string || this.precision;
 
         this.initChart();
 
@@ -83,7 +85,8 @@ export default defineComponent({
             const container = this.$refs.chartContainer;
             const tvSymbol = this.symbol !== "XRD" ? this.symbol + ":" + this.currency : "XRD:USD";
             const tvSaveLoadAdapter = new TVSaveLoadAdapter(tvSymbol);
-            const dataFeed = new UDFCompatibleDatafeed(API.baseUrl + "/api/charts", 30000);
+            const datafeedURL = API.baseUrl + "/api/charts/precision-" + this.precision;
+            const dataFeed = new UDFCompatibleDatafeed(datafeedURL, 30000);
             const widgetOptions = {
                 symbol: tvSymbol,
                 // BEWARE: no trailing slash is expected in feed URL

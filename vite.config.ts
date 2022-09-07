@@ -8,6 +8,7 @@ export default defineConfig({
     plugins: [Vue()],
     server: {
         proxy: {
+            // "/api/charts/": "http://localhost:8080",
             "/api/": "https://dogecubex.live",
         }
     },
