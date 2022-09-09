@@ -1,5 +1,5 @@
 <template>
-    <TheHeader active-page="Batch-Send" :show-images="true" />
+    <TheHeader active-page="BatchSend" :show-images="true" />
     <main>
         <div class="px-4 my-3">
             <br>

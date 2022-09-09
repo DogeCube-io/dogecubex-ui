@@ -76,6 +76,10 @@ const dropDownItems: { [key: string]: { name: string; url: string; } } = {
         name: "Staking",
         url: "/stakers",
     },
+    BatchSend: {
+        name: "Airdrop Tool",
+        url: "/tools/batch-send",
+    },
 };
 
 export default defineComponent({
