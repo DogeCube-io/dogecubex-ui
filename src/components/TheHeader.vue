@@ -122,6 +122,17 @@ export default defineComponent({
     justify-content: right;
 }
 
+.site-header a[href="/tools/batch-send"] {
+    color: forestgreen;
+}
+
+.site-header a[href="/tools/batch-send"].active,
+.site-header a[href="/tools/batch-send"]:active,
+.site-header a[href="/tools/batch-send"]:hover,
+.site-header a[href="/tools/batch-send"]:focus {
+    color: white;
+}
+
 @media (min-width: 576px) {
     .site-header .connect-parent {
         width: 100%;
