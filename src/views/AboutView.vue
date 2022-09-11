@@ -38,12 +38,12 @@
                     <div class="accordion my-5" id="infos">
                         <div class="accordion-item">
                             <h2 class="accordion-header" id="info-fees">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#fees" aria-expanded="false" aria-controls="fees">
+                                <button class="accordion-button" :class="!feesExpanded ? 'collapsed' : ''" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#fees" :aria-expanded="feesExpanded" aria-controls="fees">
                                     <code><sup>*</sup></code>Fees
                                 </button>
                             </h2>
-                            <div id="fees" class="accordion-collapse collapse" aria-labelledby="info-fees"
+                            <div id="fees" class="accordion-collapse collapse" :class="feesExpanded ? 'show' : ''" aria-labelledby="info-fees"
                                  data-bs-parent="#infos">
                                 <div class="accordion-body">
                                     Typically, the fee applied to each swap consists of three parts:
@@ -108,6 +108,14 @@ import { defineComponent } from "vue";
 export default defineComponent({
     components: {TheHeader},
     props: {},
+    data() {
+        return {
+            feesExpanded: false,
+        }
+    },
+    mounted() {
+        this.feesExpanded = this.$route.hash === "#info-fees";
+    },
     computed: {
         AmmConfigStore() {
             return useAmmConfigStore();

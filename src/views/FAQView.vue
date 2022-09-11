@@ -47,13 +47,13 @@ export default  defineComponent({
             FAQs: [
                 {
                     q: "How to list my Token?",
-                    a: "Representatives of the project's Team can contact Benedetto <a href=&quot;https://t.me/BenGoch&quot;>@BenGoch</a> or Mr. Peanutbutter <a href=&quot;https://t.me/ALFRED_DULAiRE&quot;>@ALFRED_DULAiRE</a> to check if your Project meets the minimum requirements and discuss the details.",
+                    a: 'Representatives of the project\'s Team can contact Benedetto <a href="https://t.me/BenGoch" target="_blank">@BenGoch</a> or Mr. Peanutbutter <a href="https://t.me/ALFRED_DULAiRE" target="_blank">@ALFRED_DULAiRE</a> to check if your Project meets the minimum requirements and discuss the details.',
                 }, {
                     q: "How to add liquidity?",
-                    a: "As any added liquidity needs to reside in the DogeCubeX hot wallet, adding liquidity is not supported at this time.",
+                    a: 'As any added liquidity needs to reside in the DogeCubeX hot wallet, adding liquidity is not supported at this time.',
                 }, {
                     q: "I've got refunded but received less than I've sent",
-                    a: "See <a href=&quot;/about#fees&quot;>About -> Fees</a> to learn more about the fees applied to the refunds.",
+                    a: 'See <a href="/about#info-fees">About -> Fees</a> to learn more about the fees applied to the refunds.',
                 },
             ]
         }
