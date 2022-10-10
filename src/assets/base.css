@@ -108,6 +108,11 @@ header.site-header nav {
     border-right-color: rgba(var(--bs-success-rgb), var(--bs-bg-opacity)) !important
 }
 
+body .d3x-sup {
+    top: -3px;
+    position: relative;
+}
+
 .hide {
     display: none;
 }

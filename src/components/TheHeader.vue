@@ -33,7 +33,10 @@
                                href="#" id="menu-dropdown" data-bs-toggle="dropdown" aria-expanded="false">More</a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="menu-dropdown">
                                 <li v-for="(item, alias) in dropDownItems" v-bind:key="alias">
-                                    <RouterLink :to="item.url" class="dropdown-item"
+                                    <a class="dropdown-item link-dark" v-if="item.url.startsWith('http')" :href="item.url" target="_blank">
+                                        {{ item.name }} <icon-external-link class="d3x-sup" />
+                                    </a>
+                                    <RouterLink v-else :to="item.url" class="dropdown-item"
                                                 :class="activePage === alias ? 'active' : '' ">{{ item.name }}
                                     </RouterLink>
                                 </li>
@@ -53,6 +56,7 @@
 import { defineComponent } from "vue";
 import SettingsDropdown from "@/components/sub/SettingsDropdown.vue";
 import ButtonConnect from "@/components/ButtonConnect.vue";
+import IconExternalLink from "@/components/icons/IconExternalLink.vue";
 
 
 const dropDownItems: { [key: string]: { name: string; url: string; } } = {
@@ -76,6 +80,10 @@ const dropDownItems: { [key: string]: { name: string; url: string; } } = {
         name: "Staking",
         url: "/stakers",
     },
+    DogEscrow: {
+        name: "Escrow 24/7",
+        url: "https://dogescrow.app/",
+    },
     BatchSend: {
         name: "Airdrop Tool",
         url: "/tools/batch-send",
@@ -84,7 +92,7 @@ const dropDownItems: { [key: string]: { name: string; url: string; } } = {
 
 export default defineComponent({
     name: "TheHeader",
-    components: {ButtonConnect, SettingsDropdown},
+    components: {IconExternalLink, ButtonConnect, SettingsDropdown},
     data() {
         return {};
     },
