@@ -101,7 +101,7 @@
             <div class="row message-row" :class="{hide: hideMessageRow}">
                 <div class="alert alert-danger" :class="{hide: !error}" role="alert" v-html="error"></div>
                 <div class="alert alert-danger" :class="{hide: !warning}" role="alert" v-html="warning"></div>
-                <div v-if="!zeusConnected" id="swap-message-prompt" :class="{hide: error}">
+                <div v-if="!zeusConnected && !xidarConnected" id="swap-message-prompt" :class="{hide: error}">
                     <div>
                         To swap send
                     </div>
@@ -146,6 +146,7 @@ import Utils from "@/util/Utils";
 import { useAccountInfoStore } from "@/stores/AccountInfoStore";
 import { useActiveStateStore } from "@/stores/ActiveStateStore";
 import { useWalletConnectionStore } from "@/stores/WalletConnectionStore";
+import { WalletAPI } from "../../wallets";
 
 export default defineComponent({
     components: {CopyTrigger, IconInfo, IconChangeDirection, IconArrowDown, IconSliders, ButtonCopy},
@@ -305,9 +306,16 @@ export default defineComponent({
             }
         },
         async onClickSwap() {
-            if (this.zeusConnected && !this.error && this.poolAccount && this.tokenRri) {
-                if (window.z3us && window.z3us.v1) {
-
+            if (!this.error && this.poolAccount && this.tokenRri) {
+                let wallet: WalletAPI;
+                if (this.zeusConnected) {
+                    wallet = window.z3us;
+                } else if (this.xidarConnected) {
+                    wallet = window.xidar;
+                } else {
+                    return;
+                }
+                if (wallet && wallet.v1) {
                     const tx = {
                         actions: [
                             {
@@ -329,7 +337,7 @@ export default defineComponent({
                         message: this.walletMessage,
                         encryptMessage: false,
                     };
-                    await window.z3us.v1.submitTransaction(tx);
+                    await wallet.v1.submitTransaction(tx);
                 }
             }
         },
@@ -660,6 +668,9 @@ export default defineComponent({
         },
         zeusConnected() {
             return this.connectedWallet && this.connectedWallet === this.WalletConnectionStore.zeus;
+        },
+        xidarConnected() {
+            return this.connectedWallet && this.connectedWallet === this.WalletConnectionStore.xidar;
         },
     },
     watch: {

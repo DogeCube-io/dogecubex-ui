@@ -12,14 +12,12 @@ export default defineComponent({
     data() {
         return {
             wsConnector: new WsConnector(),
-            halloween: false,
         };
     },
     mounted() {
         // delay to get a proper route after reloading the page (instead of "/")
         setTimeout(() => {
             this.fetchData();
-            this.injectHalloween();
         });
     },
     computed: {
@@ -37,16 +35,7 @@ export default defineComponent({
                 this.AmmConfigStore.loadConfig();
             }
         },
-        injectHalloween(): void {
-            if (!this.halloween) {
-                this.halloween = true;
-                const script = document.createElement('script');
-                script.async = true;
-                script.src = "https://xidar.io/assets/scripts/halloween.js";
-                document.head.appendChild(script);
-            }
 
-        }
     }
 });
 </script>

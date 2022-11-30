@@ -84,8 +84,8 @@
                     <div class="col-lg-4 text-center">
                         From account:
                         <div class="input-group  mt-1">
-                            <span v-if="zeusConnected">{{ connectedWallet }}</span>
-                            <span v-else class="text-info">{{ "Please connect Z3US first" }}</span>
+                            <span v-if="zeusConnected || xidarConnected">{{ connectedWallet }}</span>
+                            <span v-else class="text-info">{{ "Please connect Z3US or XIDAR wallet" }}</span>
                         </div>
                         &nbsp;
                         <button class="btn btn-primary mt-2" @click.stop="onClickSend">
@@ -108,6 +108,7 @@ import Utils from "../util/Utils";
 import { useActiveStateStore } from "@/stores/ActiveStateStore";
 import { defineComponent } from "vue";
 import { useWalletConnectionStore } from "@/stores/WalletConnectionStore";
+import { WalletAPI } from "../../wallets";
 
 declare type SendActionModel = {
     account_to: string;
@@ -220,36 +221,43 @@ export default defineComponent({
             return elems;
         },
         async onClickSend() {
+            let wallet: WalletAPI;
             if (this.zeusConnected) {
-                if (window.z3us && window.z3us.v1) {
-                    const actions = [];
-                    for (let i = 0; i < this.actions.length; i++) {
-                        const action = this.actions[i];
-                        actions.push({
-                            type: 'TransferTokens',
-                            from_account: {
-                                address: this.connectedWallet,
-                            },
-                            to_account: {
-                                address: action.account_to,
-                            },
-                            amount: {
-                                token_identifier: {
-                                    rri: this.getRri(action)
-                                },
-                                value: Utils.toAttos(action.amount),
-                            },
-                        });
-                    }
+                wallet = window.z3us;
+            } else if (this.xidarConnected) {
+                wallet = window.xidar;
+            } else {
+                return;
+            }
 
-                    const tx = {
-                        actions: actions,
-                    };
-                    if (this.message) {
-                        (tx as any).message = this.message;
-                    }
-                    await window.z3us.v1.submitTransaction(tx);
+            if (wallet && wallet.v1) {
+                const actions = [];
+                for (let i = 0; i < this.actions.length; i++) {
+                    const action = this.actions[i];
+                    actions.push({
+                        type: 'TransferTokens',
+                        from_account: {
+                            address: this.connectedWallet,
+                        },
+                        to_account: {
+                            address: action.account_to,
+                        },
+                        amount: {
+                            token_identifier: {
+                                rri: this.getRri(action)
+                            },
+                            value: Utils.toAttos(action.amount),
+                        },
+                    });
                 }
+
+                const tx = {
+                    actions: actions,
+                };
+                if (this.message) {
+                    (tx as any).message = this.message;
+                }
+                await wallet.v1.submitTransaction(tx);
             }
         },
         getRri(action: SendActionModel) {
@@ -270,6 +278,9 @@ export default defineComponent({
         },
         zeusConnected() {
             return this.connectedWallet && this.connectedWallet === this.WalletConnectionStore.zeus;
+        },
+        xidarConnected() {
+            return this.connectedWallet && this.connectedWallet === this.WalletConnectionStore.xidar;
         },
     },
 });

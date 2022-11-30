@@ -1,23 +1,31 @@
 import { defineStore } from "pinia";
-import { UnwrapRef } from "vue-demi";
 
 export const useWalletConnectionStore = defineStore({
     id: "WalletConnection",
     state: () => ({
         zeus: "",
+        xidar: "",
     }),
     actions: {
-        subscribeZeus(callback: (state: UnwrapRef<{ zeus: string }>) => void) {
-            this.$subscribe((mutation: any, state) => {
-                if (mutation.payload && mutation.payload.zeus !== undefined) {
-                    callback(state);
-                }
-            });
-        },
         setZeus(account: string) {
             this.$patch({
-                zeus: account || ""
+                zeus: account || "",
+                xidar: ""
             });
-        }
+        },
+
+        setXidar(account: string) {
+            this.$patch({
+                zeus: "",
+                xidar: account || "",
+            });
+        },
+
+        setAll(zeusAccount: string, xidarAccount: string) {
+            this.$patch({
+                zeus: zeusAccount || "",
+                xidar: xidarAccount || "",
+            });
+        },
     },
 });

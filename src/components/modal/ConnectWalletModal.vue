@@ -8,7 +8,7 @@
                 </div>
                 <div class="modal-body">
                     <div v-if="connectedWallet" class="mb-1">
-                        <h6 v-if="zeusConnected">Currently connected: </h6>
+                        <h6 v-if="zeusConnected || xidarConnected">Currently connected: </h6>
                         <h6 v-else>Currently "connected": </h6>
                         <span class="float-end" style="margin-top: -15px;">
                                 <button class="btn btn-danger" @click.stop="disconnect(connectedWallet)">
@@ -28,17 +28,29 @@
                     <div>
                         Add Account:
                         <div class="row pt-1">
-                            <div class="col-lg-2"></div>
-                            <div class="col-6 col-lg-5">
-                                <button class="btn link-dark pick-wallet-btn" :class="{deselect: mode === 'OTHER'}"
+                            <div class=""></div>
+                            <div class="col-4 col-lg-4">
+                                <button class="btn link-dark pick-wallet-btn"
+                                        :class="{deselect: mode && mode !== 'Z3US'}"
                                         @click.stop="onSelectZeus">
                                     <img src="https://dogecubex.b-cdn.net/icons/Z3US_64x64.png" alt="Z3US Wallet">
                                     <span class="ms-2 d-inline-block">Z3US Wallet</span>
                                     <span v-if="zeusConnected" class="ms-2 text-success">Connected</span>
                                 </button>
                             </div>
-                            <div class="col-6 col-lg-5">
-                                <button class="btn link-dark pick-wallet-btn" :class="{deselect: mode === 'Z3US'}"
+                            <div class="col-4 col-lg-4">
+                                <button class="btn link-dark pick-wallet-btn"
+                                        :class="{deselect: mode && mode !== 'XIDAR'}"
+                                        @click.stop="onSelectXidar">
+                                    <img class="xidar-logo" src="https://dogecubex.b-cdn.net/icons/wallet_XIDAR.png"
+                                         alt="XIDAR">
+                                    <span class="ms-2 d-inline-block">Wallet</span>
+                                    <span v-if="xidarConnected" class="ms-2 text-success">Connected</span>
+                                </button>
+                            </div>
+                            <div class="col-4 col-lg-4">
+                                <button class="btn link-dark pick-wallet-btn"
+                                        :class="{deselect: mode && mode !== 'OTHER'}"
                                         @click.stop="mode = 'OTHER'">
                                     <img src="https://dogecubex.b-cdn.net/icons/Radix_g_64x64.png" alt="Other Wallet">
                                     <span class="ms-2 d-inline-block">Other Wallet</span>
@@ -54,6 +66,13 @@
                                 </div>
                                 <div v-else-if="!zeusConnected">
                                     Awaiting confirmation from Z3US extension...
+                                </div>
+                            </div>
+                            <div v-if="mode === 'XIDAR'">
+                                <div v-if="!xidarDetected">XIDAR wallet is available to Beta testers.
+                                </div>
+                                <div v-else-if="!xidarConnected">
+                                    Awaiting confirmation from XIDAR extension...
                                 </div>
                             </div>
                             <div v-if="mode === 'OTHER'">
@@ -116,6 +135,7 @@ import CopyTrigger from "@/components/sub/CopyTrigger.vue";
 import ButtonCopy from "@/components/sub/ButtonCopy.vue";
 import IconDelete from "@/components/icons/IconDelete.vue";
 import { useWalletConnectionStore } from "@/stores/WalletConnectionStore";
+import { WalletAPI } from "../../../wallets";
 
 export default defineComponent({
     components: {IconDelete, ButtonCopy, CopyTrigger},
@@ -130,8 +150,12 @@ export default defineComponent({
             addrRegexp: "^rdx1[02-9AC-HJ-NP-Zac-hj-np-z]{54}[cgqsCGQS]{1}[02-9AC-HJ-NP-Zac-hj-np-z]{6}$",
         };
     },
-    mounted(): void {
-        this.updateZeusStatus();
+    created(): void {
+        document.onreadystatechange = () => {
+            if (document.readyState == "complete") {
+                this.updateWalletStatuses();
+            }
+        }
     },
     computed: {
         ActiveStateStore(): ReturnType<typeof useActiveStateStore> {
@@ -155,20 +179,26 @@ export default defineComponent({
         zeusDetected() {
             return window.z3us && window.z3us.v1;
         },
+        xidarDetected() {
+            return window.xidar && window.xidar.v1;
+        },
         zeusConnected() {
             return this.connectedWallet && this.connectedWallet === this.WalletConnectionStore.zeus;
+        },
+        xidarConnected() {
+            return this.connectedWallet && this.connectedWallet === this.WalletConnectionStore.xidar;
         },
 
     },
     methods: {
         connectWallet(account: string): void {
             this.ActiveStateStore.connectAccount(account);
-            this.updateZeusStatus();
+            this.updateWalletStatuses();
         },
         disconnect(account: string): void {
             if (this.connectedWallet === account) {
                 this.ActiveStateStore.connectAccount("");
-                this.updateZeusStatus();
+                this.updateWalletStatuses();
             }
         },
         deleteWallet(account: string) {
@@ -188,20 +218,40 @@ export default defineComponent({
                 }
             }
         },
-        async updateZeusStatus(): Promise<void> {
-            if (window.z3us && window.z3us.v1) {
-                const hasWallet = await window.z3us.v1.hasWallet();
-                if (hasWallet) {
-                    if (await window.z3us.v1.isConnected()) {
-                        const selectedAddress = await window.z3us.v1.connect();
-                        this.WalletConnectionStore.setZeus(selectedAddress || "");
-                    } else {
-                        this.WalletConnectionStore.setZeus("");
-                    }
-                } else {
-                    this.WalletConnectionStore.setZeus("");
+        async onSelectXidar() {
+            this.mode = "XIDAR";
+            if (window.xidar && window.xidar.v1) {
+                const hasWallet = await window.xidar.v1.hasWallet();
+                if (!hasWallet) {
+                    return;
+                }
+                const selectedAddress = await window.xidar.v1.connect();
+                this.WalletConnectionStore.setXidar(selectedAddress);
+                if (selectedAddress) {
+                    this.connectWallet(selectedAddress);
                 }
             }
+        },
+        async updateWalletStatuses(): Promise<void> {
+            const zeusAcc = await this.getWalletAccount(window.z3us);
+            const xidarAcc = await this.getWalletAccount(window.xidar);
+            this.WalletConnectionStore.setAll(zeusAcc, xidarAcc);
+        },
+        async getWalletAccount(wallet: WalletAPI): Promise<string> {
+            if (wallet && wallet.v1) {
+                const hasWallet = await wallet.v1.hasWallet();
+                if (hasWallet) {
+                    if (await wallet.v1.isConnected()) {
+                        const selectedAddress = await wallet.v1.connect();
+                        return selectedAddress || "";
+                    } else {
+                        return "";
+                    }
+                } else {
+                    return "";
+                }
+            }
+            return "";
         },
         updateMaxWalletWidth(shortAddr: string): void {
             try {
@@ -265,5 +315,14 @@ export default defineComponent({
 #connect-wallet-modal input:not(:placeholder-shown):valid {
     box-shadow: 0 0 0 0.25rem rgb(0 139 0 / 75%);
 }
+
+@media (max-width: 991px) {
+    .xidar-logo {
+        width: 64px;
+        padding-bottom: 25px;
+        padding-top: 25px;
+    }
+}
+
 </style>
 
