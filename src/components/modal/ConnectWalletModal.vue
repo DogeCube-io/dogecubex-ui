@@ -60,7 +60,8 @@
                         </div>
                         <div class="mt-2">
                             <div v-if="mode === 'Z3US'">
-                                <div v-if="!zeusDetected">Please install
+                                <div v-if="!zeusDetected">
+                                    Please install
                                     <a href="https://z3us.com/" target="_blank">Z3US extension</a>
                                     and create/import a wallet.
                                 </div>
@@ -69,7 +70,10 @@
                                 </div>
                             </div>
                             <div v-if="mode === 'XIDAR'">
-                                <div v-if="!xidarDetected">XIDAR wallet is available to Beta testers.
+                                <div v-if="!xidarDetected">
+                                    Please install
+                                    <a href="https://chrome.xidar.io" target="_blank">XIDAR Wallet Extension</a>
+                                    and create/import a wallet.
                                 </div>
                                 <div v-else-if="!xidarConnected">
                                     Awaiting confirmation from XIDAR extension...

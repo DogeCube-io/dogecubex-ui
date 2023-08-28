@@ -34,6 +34,7 @@ export default defineComponent({
             height: "720",
             zoom: "1",
             precision: "6",
+            inverted: false,
 
         };
     },
@@ -45,6 +46,7 @@ export default defineComponent({
         this.height = this.$route.query.height as string || this.height;
         this.zoom = this.$route.query.zoom as string || this.zoom;
         this.precision = this.$route.query.precision as string || this.precision;
+        this.inverted = (this.$route.query.inverted as string) == 'true' || this.inverted;
 
         this.initChart();
 
@@ -129,6 +131,7 @@ export default defineComponent({
                     "scalesProperties.showStudyLastValue": false,
                     "mainSeriesProperties.highLowAvgPrice.highLowPriceLabelsVisible": true,
                     "paneProperties.legendProperties.showSeriesOHLC": false,
+                    "mainSeriesProperties.priceAxisProperties.isInverted": this.inverted,
                 },
                 custom_css_url: "/css/tv-overrides-print.css?_v=2",
                 theme: "Dark",
